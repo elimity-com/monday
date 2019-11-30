@@ -2,7 +2,6 @@ package monday
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -172,8 +171,6 @@ type BoardsArgument struct {
 
 func (a BoardsArgument) stringify() string {
 	switch a.argument {
-	case "limit", "page", "board_kind", "state", "newest_first":
-		return fmt.Sprintf("%s:%v", a.argument, a.value)
 	case "ids":
 		switch ids := a.value.([]int); {
 		case len(ids) == 1:
@@ -184,9 +181,8 @@ func (a BoardsArgument) stringify() string {
 			return ""
 		}
 	default:
-		log.Fatalln("unreachable boards argument")
+		return fmt.Sprintf("%s:%v", a.argument, a.value)
 	}
-	return ""
 }
 
 type BoardsKind struct {
@@ -209,33 +205,6 @@ func PrivateBoardsKind() BoardsKind {
 
 func ShareBoardsKind() BoardsKind {
 	return shareBoardsKind
-}
-
-type BoardsState struct {
-	state string
-}
-
-var (
-	allBoardsState      = BoardsState{"all"}
-	activeBoardsState   = BoardsState{"active"}
-	archivedBoardsState = BoardsState{"archived"}
-	deletedBoardsState  = BoardsState{"deleted"}
-)
-
-func AllBoardsState() BoardsState {
-	return allBoardsState
-}
-
-func ActiveBoardsState() BoardsState {
-	return activeBoardsState
-}
-
-func ArchivedBoardsState() BoardsState {
-	return archivedBoardsState
-}
-
-func DeletedBoardsState() BoardsState {
-	return deletedBoardsState
 }
 
 // Number of items to get, the default is 25.
@@ -271,7 +240,7 @@ func NewKindBoardsArg(kind BoardsKind) BoardsArgument {
 }
 
 // The state of the boards (all / active / archived / deleted), the default is active.
-func NewStateBoardsArg(state BoardsState) BoardsArgument {
+func NewStateBoardsArg(state State) BoardsArgument {
 	return BoardsArgument{
 		argument: "state",
 		value:    state.state,

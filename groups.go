@@ -2,7 +2,6 @@ package monday
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -131,9 +130,8 @@ func (a GroupsArgument) stringify() string {
 			return ""
 		}
 	default:
-		log.Fatalln("unreachable boards argument")
+		return ""
 	}
-	return ""
 }
 
 // A list of group unique identifiers.

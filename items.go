@@ -2,7 +2,6 @@ package monday
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -65,8 +64,14 @@ var (
 
 func (f ItemsField) stringify() string {
 	switch f.field {
+	case "boards":
+		return f.value.(Boards).stringify()
 	case "column_values":
 		return f.value.(ColumnValues).stringify()
+	case "creator":
+		creator := f.value.(Users)
+		creator.alt = "creator"
+		return creator.stringify()
 	case "group":
 		group := f.value.(Groups)
 		group.alt = "group"
@@ -80,7 +85,7 @@ func (f ItemsField) stringify() string {
 	}
 }
 
-// The board that contains this item.¬
+// The board that contains this item.
 func NewItemsBoardsField(boards Boards) ItemsField {
 	return ItemsField{field: "boards", value: boards}
 }
@@ -147,8 +152,6 @@ type ItemsArgument struct {
 
 func (a ItemsArgument) stringify() string {
 	switch a.argument {
-	case "limit", "page", "newest_first":
-		return fmt.Sprintf("%s:%v", a.argument, a.value)
 	case "ids":
 		switch ids := a.value.([]int); {
 		case len(ids) == 1:
@@ -159,9 +162,8 @@ func (a ItemsArgument) stringify() string {
 			return ""
 		}
 	default:
-		log.Fatalln("unreachable boards argument")
+		return fmt.Sprintf("%s:%v", a.argument, a.value)
 	}
-	return ""
 }
 
 // Number of items to get, the default is 25.

@@ -72,7 +72,7 @@ func TestBoardsArgs(t *testing.T) {
 		{ // enum fields args
 			boards: NewBoardsWithArguments(nil, []BoardsArgument{
 				NewKindBoardsArg(PublicBoardsKind()),
-				NewStateBoardsArg(AllBoardsState()),
+				NewStateBoardsArg(AllState()),
 			}),
 			str: `boards(board_kind:public,state:all){id}`,
 		},
