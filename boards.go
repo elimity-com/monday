@@ -29,7 +29,7 @@ func (b Boards) stringify() string {
 	return fmt.Sprintf(`boards(%s){%s}`, strings.Join(args, ","), strings.Join(fields, " "))
 }
 
-func NewBoard(fields []BoardsField) Boards {
+func NewBoards(fields []BoardsField) Boards {
 	if len(fields) == 0 {
 		return Boards{
 			fields: []BoardsField{
@@ -44,9 +44,9 @@ func NewBoard(fields []BoardsField) Boards {
 }
 
 func NewBoardsWithArguments(fields []BoardsField, args []BoardsArgument) Boards {
-	board := NewBoard(fields)
-	board.args = args
-	return board
+	boards := NewBoards(fields)
+	boards.args = args
+	return boards
 }
 
 type BoardsField struct {
@@ -61,7 +61,7 @@ var (
 	boardsDescField        = BoardsField{"description", nil}
 	boardsNameField        = BoardsField{"name", nil}
 	boardsPermissionsField = BoardsField{"permissions", nil}
-	boardsPosField         = BoardsField{"pos", nil}
+	boardsPositionField         = BoardsField{"pos", nil}
 	boardsStateField       = BoardsField{"state", nil}
 )
 
@@ -122,8 +122,8 @@ func BoardsPermissionsField() BoardsField {
 	return boardsPermissionsField
 }
 
-func BoardsPosField() BoardsField {
-	return boardsPosField
+func BoardsPositionField() BoardsField {
+	return boardsPositionField
 }
 
 func BoardsStateField() BoardsField {

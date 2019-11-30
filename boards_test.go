@@ -12,7 +12,7 @@ func TestBoardsFields(t *testing.T) {
 			str:    ``,
 		},
 		{ // empty boards
-			boards: NewBoard(nil),
+			boards: NewBoards(nil),
 			str:    `boards{id}`,
 		},
 		{ // string fields
@@ -107,7 +107,7 @@ func TestBoardFieldsArgs(t *testing.T) {
 			),
 			str: `boards(limit:1){name}`,
 		},
-		{ // complex boards
+		{ // complex boards with columns
 			boards: NewBoardsWithArguments(
 				[]BoardsField{
 					NewBoardsColumnField(NewColumns([]ColumnsField{
@@ -119,6 +119,19 @@ func TestBoardFieldsArgs(t *testing.T) {
 				},
 			),
 			str: `boards(limit:1){columns{title}}`,
+		},
+		{ // complex boards with groups
+			boards: NewBoards(
+				[]BoardsField{
+					NewBoardsGroupsFields(NewGroupWithArguments(
+						nil,
+						[]GroupsArgument{
+							NewIDsGroupsArg([]int{0}),
+						},
+					)),
+				},
+			),
+			str: `boards{groups(ids:0){id}}`,
 		},
 	}
 
