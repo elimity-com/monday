@@ -67,7 +67,7 @@ var (
 
 func (f BoardsField) stringify() string {
 	switch f.field {
-	case "column":
+	case "columns":
 		return f.value.(Columns).stringify()
 	case "groups":
 		return f.value.(Groups).stringify()

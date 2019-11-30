@@ -24,6 +24,14 @@ func TestBoardsFields(t *testing.T) {
 			},
 			str: `boards{board_kind description}`,
 		},
+		{ // columns field
+			boards: Boards{
+				fields: []BoardsField{
+					NewBoardsColumnField(NewColumns(nil)),
+				},
+			},
+			str: `boards{columns{id}}`,
+		},
 	}
 
 	for _, test := range tests {
@@ -73,6 +81,44 @@ func TestBoardsArgs(t *testing.T) {
 				NewNewestFirstBoardsArg(false),
 			}),
 			str: `boards(newest_first:false){id}`,
+		},
+	}
+
+	for _, test := range tests {
+		if str := test.boards.stringify(); str != test.str {
+			t.Errorf("got: %s, expected: %s \n", str, test.str)
+		}
+	}
+}
+
+func TestBoardFieldsArgs(t *testing.T) {
+	tests := []struct {
+		boards Boards
+		str    string
+	}{
+		{ // simple boards
+			boards: NewBoardsWithArguments(
+				[]BoardsField{
+					BoardsNameField(),
+				},
+				[]BoardsArgument{
+					NewLimitBoardsArg(1),
+				},
+			),
+			str: `boards(limit:1){name}`,
+		},
+		{ // complex boards
+			boards: NewBoardsWithArguments(
+				[]BoardsField{
+					NewBoardsColumnField(NewColumns([]ColumnsField{
+						ColumnsTitleField(),
+					})),
+				},
+				[]BoardsArgument{
+					NewLimitBoardsArg(1),
+				},
+			),
+			str: `boards(limit:1){columns{title}}`,
 		},
 	}
 
