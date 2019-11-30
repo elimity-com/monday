@@ -7,11 +7,17 @@ import (
 )
 
 type Groups struct {
+	alt    string
 	fields []GroupsField
 	args   []GroupsArgument
 }
 
 func (g Groups) stringify() string {
+	prefix := "groups"
+	if g.alt != "" {
+		prefix = g.alt
+	}
+
 	fields := make([]string, 0)
 	for _, field := range g.fields {
 		fields = append(fields, field.stringify())
@@ -24,9 +30,9 @@ func (g Groups) stringify() string {
 		return ``
 	}
 	if len(args) == 0 {
-		return fmt.Sprintf(`groups{%s}`, strings.Join(fields, " "))
+		return fmt.Sprintf(`%s{%s}`, prefix, strings.Join(fields, " "))
 	}
-	return fmt.Sprintf(`groups(%s){%s}`, strings.Join(args, ","), strings.Join(fields, " "))
+	return fmt.Sprintf(`%s(%s){%s}`, prefix, strings.Join(args, ","), strings.Join(fields, " "))
 
 }
 

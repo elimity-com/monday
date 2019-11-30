@@ -73,13 +73,18 @@ func (f BoardsField) stringify() string {
 		return f.value.(Groups).stringify()
 	case "items":
 		return f.value.(Items).stringify()
-	case "owner", "subscribers":
-		return f.value.(Users).stringify()
+	case "owner":
+		owner := f.value.(Users)
+		owner.alt = "owner"
+		return owner.stringify()
+	case "subscribers":
+		subscribers := f.value.(Users)
+		subscribers.alt = "subscribers"
+		return subscribers.stringify()
 	case "tags":
 		return f.value.(Tags).stringify()
 	case "updates":
 		return f.value.(Updates).stringify()
-
 	default:
 		return fmt.Sprint(f.field)
 	}
