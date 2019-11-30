@@ -73,30 +73,37 @@ func (f GroupsField) stringify() string {
 	}
 }
 
+// Is the group archived or not.
 func GroupsArchivedField() GroupsField {
 	return groupsArchivedField
 }
 
+// The group's color.
 func GroupsColorField() GroupsField {
 	return groupsColorField
 }
 
+// Is the group deleted or not.
 func GroupsDeletedField() GroupsField {
 	return groupsDeletedField
 }
 
+// The group's unique identifier.
 func GroupsIDField() GroupsField {
 	return groupsIDField
 }
 
+// The items in the group.
 func NewGroupsItemsField(items Items) GroupsField {
 	return GroupsField{field: "items", value: items}
 }
 
+// The group's position in the board.
 func GroupsPositionField() GroupsField {
 	return groupsPositionField
 }
 
+// The group's title.
 func GroupsTitleField() GroupsField {
 	return groupsTitleField
 }
@@ -123,6 +130,7 @@ func (a GroupsArgument) stringify() string {
 	return ""
 }
 
+// A list of group unique identifiers.
 func NewIDsGroupsArg(ids []int) GroupsArgument {
 	return GroupsArgument{
 		argument: "ids",

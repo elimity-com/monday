@@ -61,7 +61,7 @@ var (
 	boardsDescField        = BoardsField{"description", nil}
 	boardsNameField        = BoardsField{"name", nil}
 	boardsPermissionsField = BoardsField{"permissions", nil}
-	boardsPositionField         = BoardsField{"pos", nil}
+	boardsPositionField    = BoardsField{"pos", nil}
 	boardsStateField       = BoardsField{"state", nil}
 )
 
@@ -77,65 +77,87 @@ func (f BoardsField) stringify() string {
 		return f.value.(Users).stringify()
 	case "tags":
 		return f.value.(Tags).stringify()
+	case "updates":
+		return f.value.(Updates).stringify()
+
 	default:
 		return fmt.Sprint(f.field)
 	}
 }
 
+// The board's folder unique identifier.
 func BoardsFolderIDField() BoardsField {
 	return boardsFolderIDField
 }
 
+// The board's kind (public / private / share).
 func BoardsKindField() BoardsField {
 	return boardsKindField
 }
 
+// The board's visible columns.
 func NewBoardsColumnField(columns Columns) BoardsField {
 	return BoardsField{field: "columns", value: columns}
 }
 
+// The board's description.
 func BoardsDescriptionField() BoardsField {
 	return boardsDescField
 }
 
+// The board's visible groups.
 func NewBoardsGroupsFields(groups Groups) BoardsField {
 	return BoardsField{field: "groups", value: groups}
 }
 
+// The unique identifier of the board.
 func BoardsIDField() BoardsField {
 	return boardsIDField
 }
 
+// The board's items (rows).
 func NewBoardsItemsFields(items Items) BoardsField {
 	return BoardsField{field: "items", value: items}
 }
 
+// The board's name.
 func BoardsNameField() BoardsField {
 	return boardsNameField
 }
 
+// The owner of the board.
 func NewBoardsOwnerField(owner Users) BoardsField {
 	return BoardsField{field: "owner", value: owner}
 }
 
+// The board's permissions.
 func BoardsPermissionsField() BoardsField {
 	return boardsPermissionsField
 }
 
+// The board's position.
 func BoardsPositionField() BoardsField {
 	return boardsPositionField
 }
 
+// The board's state (all / active / archived / deleted).
 func BoardsStateField() BoardsField {
 	return boardsStateField
 }
 
+// The board's subscribers.
 func NewBoardsSubscribersField(subscribers Users) BoardsField {
 	return BoardsField{field: "subscribers", value: subscribers}
 }
 
+// The board's specific tags
 func NewBoardsTagsField(tags Tags) BoardsField {
 	return BoardsField{field: "tags", value: tags}
+}
+
+// The board's updates.
+func NewBoardsUpdatesField(updates Updates) BoardsField {
+	return BoardsField{field: "updates", value: updates}
 }
 
 type BoardsArgument struct {
