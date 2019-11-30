@@ -130,7 +130,7 @@ func (a GroupsArgument) stringify() string {
 			return ""
 		}
 	default:
-		return ""
+		return fmt.Sprintf("%s:%v", a.argument, a.value)
 	}
 }
 
