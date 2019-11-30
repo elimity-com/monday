@@ -231,7 +231,7 @@ func NewIDsBoardsArg(ids []int) BoardsArgument {
 	}
 }
 
-// The boards's kind (public / private / share)?
+// The boards's kind (public / private / share).
 func NewKindBoardsArg(kind BoardsKind) BoardsArgument {
 	return BoardsArgument{
 		argument: "board_kind",
