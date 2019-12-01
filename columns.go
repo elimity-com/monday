@@ -1,54 +1,37 @@
 package monday
 
-import (
-	"fmt"
-	"strings"
-)
-
-type Columns struct {
-	fields []ColumnsField
-}
-
-func (c Columns) stringify() string {
-	fields := make([]string, 0)
-	for _, field := range c.fields {
-		fields = append(fields, field.stringify())
-	}
-	if len(fields) == 0 {
-		return ``
-	}
-	return fmt.Sprintf("columns{%s}", strings.Join(fields, " "))
-}
-
-func NewColumns(fields []ColumnsField) Columns {
-	if len(fields) == 0 {
-		return Columns{
-			fields: []ColumnsField{
-				ColumnsIDField(),
+func NewColumns(columnFields []ColumnsField) Query {
+	if len(columnFields) == 0 {
+		return Query{
+			name: "columns",
+			fields: []field{
+				ColumnsIDField().field,
 			},
 		}
 	}
-	return Columns{
+
+	var fields []field
+	for _, cf := range columnFields {
+		fields = append(fields, cf.field)
+	}
+	return Query{
+		name:   "columns",
 		fields: fields,
 	}
 }
 
 type ColumnsField struct {
-	field string
+	field field
 }
 
 var (
-	columnsArchivedField    = ColumnsField{"archived"}
-	columnsIDField          = ColumnsField{"id"}
-	columnsSettingsStrField = ColumnsField{"settings_str"}
-	columnsTitleField       = ColumnsField{"title"}
-	columnsTypeField        = ColumnsField{"type"}
-	columnsWidthField       = ColumnsField{"width"}
+	columnsArchivedField    = ColumnsField{field{"archived", nil}}
+	columnsIDField          = ColumnsField{field{"id", nil}}
+	columnsSettingsStrField = ColumnsField{field{"settings_str", nil}}
+	columnsTitleField       = ColumnsField{field{"title", nil}}
+	columnsTypeField        = ColumnsField{field{"type", nil}}
+	columnsWidthField       = ColumnsField{field{"width", nil}}
 )
-
-func (f ColumnsField) stringify() string {
-	return fmt.Sprint(f.field)
-}
 
 // Is the column archived or not.
 func ColumnsArchivedField() ColumnsField {

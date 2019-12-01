@@ -1,96 +1,63 @@
 package monday
 
-import (
-	"fmt"
-	"strings"
-)
-
-type Users struct {
-	alt    string
-	fields []UsersField
-	args   []UsersArgument
-}
-
-func (u Users) stringify() string {
-	prefix := "users"
-	if u.alt != "" {
-		prefix = u.alt
-	}
-	fields := make([]string, 0)
-	for _, field := range u.fields {
-		fields = append(fields, field.stringify())
-	}
-	args := make([]string, 0)
-	for _, arg := range u.args {
-		args = append(args, arg.stringify())
-	}
-	if len(fields) == 0 {
-		return ``
-	}
-	if len(args) == 0 {
-		return fmt.Sprintf(`%s{%s}`, prefix, strings.Join(fields, " "))
-	}
-	return fmt.Sprintf(`%s(%s){%s}`, prefix, strings.Join(args, ","), strings.Join(fields, " "))
-}
-
-func NewUsers(fields []UsersField) Users {
-	if len(fields) == 0 {
-		return Users{
-			fields: []UsersField{
-				UsersIDField(),
+func NewUsers(usersFields []UsersField) Query {
+	if len(usersFields) == 0 {
+		return Query{
+			name: "users",
+			fields: []field{
+				UsersIDField().field,
 			},
 		}
 	}
 
-	return Users{
+	var fields []field
+	for _, uf := range usersFields {
+		fields = append(fields, uf.field)
+	}
+	return Query{
+		name:   "users",
 		fields: fields,
 	}
 }
 
-func NewUsersWithArguments(fields []UsersField, args []UsersArgument) Users {
-	users := NewUsers(fields)
+func NewUsersWithArguments(usersFields []UsersField, usersArgs []UsersArgument) Query {
+	users := NewUsers(usersFields)
+	var args []argument
+	for _, ua := range usersArgs {
+		args = append(args, ua.arg)
+	}
 	users.args = args
 	return users
 }
 
 type UsersField struct {
-	field string
-	value interface{}
+	field field
 }
 
 var (
-	usersBirthdayField           = UsersField{"birthday", nil}
-	usersCountryCodeField        = UsersField{"country_code", nil}
-	usersCreatedAtField          = UsersField{"created_at", nil}
-	usersEmailField              = UsersField{"email", nil}
-	usersEnabledField            = UsersField{"enabled", nil}
-	usersIDField                 = UsersField{"id", nil}
-	usersIsGuestField            = UsersField{"is_guest", nil}
-	usersIsPendingField          = UsersField{"is_pending", nil}
-	usersJoinDateField           = UsersField{"join_date", nil}
-	usersLocationField           = UsersField{"location", nil}
-	usersMobilePhoneField        = UsersField{"mobile_phone", nil}
-	usersNameField               = UsersField{"name", nil}
-	usersPhoneField              = UsersField{"phone", nil}
-	usersPhotoOriginalField      = UsersField{"photo_original", nil}
-	usersPhotoSmallField         = UsersField{"photo_small", nil}
-	usersPhotoThumbField         = UsersField{"photo_thumb", nil}
-	usersPhotoThumbSmallField    = UsersField{"photo_thumb_small", nil}
-	usersPhotoTinyField          = UsersField{"photo_tiny", nil}
-	usersTimeZoneIdentifierField = UsersField{"time_zone_identifier", nil}
-	usersTitleField              = UsersField{"title", nil}
-	usersURLField                = UsersField{"url", nil}
-	usersUTCHoursDifference      = UsersField{"utc_hours_diff", nil}
+	usersBirthdayField           = UsersField{field{"birthday", nil}}
+	usersCountryCodeField        = UsersField{field{"country_code", nil}}
+	usersCreatedAtField          = UsersField{field{"created_at", nil}}
+	usersEmailField              = UsersField{field{"email", nil}}
+	usersEnabledField            = UsersField{field{"enabled", nil}}
+	usersIDField                 = UsersField{field{"id", nil}}
+	usersIsGuestField            = UsersField{field{"is_guest", nil}}
+	usersIsPendingField          = UsersField{field{"is_pending", nil}}
+	usersJoinDateField           = UsersField{field{"join_date", nil}}
+	usersLocationField           = UsersField{field{"location", nil}}
+	usersMobilePhoneField        = UsersField{field{"mobile_phone", nil}}
+	usersNameField               = UsersField{field{"name", nil}}
+	usersPhoneField              = UsersField{field{"phone", nil}}
+	usersPhotoOriginalField      = UsersField{field{"photo_original", nil}}
+	usersPhotoSmallField         = UsersField{field{"photo_small", nil}}
+	usersPhotoThumbField         = UsersField{field{"photo_thumb", nil}}
+	usersPhotoThumbSmallField    = UsersField{field{"photo_thumb_small", nil}}
+	usersPhotoTinyField          = UsersField{field{"photo_tiny", nil}}
+	usersTimeZoneIdentifierField = UsersField{field{"time_zone_identifier", nil}}
+	usersTitleField              = UsersField{field{"title", nil}}
+	usersURLField                = UsersField{field{"url", nil}}
+	usersUTCHoursDifference      = UsersField{field{"utc_hours_diff", nil}}
 )
-
-func (f UsersField) stringify() string {
-	switch f.field {
-	case "teams":
-		return f.value.(Teams).stringify()
-	default:
-		return fmt.Sprint(f.field)
-	}
-}
 
 // TODO: account? nothing found in documentation
 
@@ -185,12 +152,13 @@ func UsersPhotoTinyField() UsersField {
 }
 
 // The teams the user is a member in.
-func NewUsersTeamsField(teams Teams) UsersField {
-	return UsersField{field: "teams", value: teams}
+func NewUsersTeamsField(teamsFields []TeamsField, teamsArguments []TeamsArgument) UsersField {
+	teams := NewTeamsWithArguments(teamsFields, teamsArguments)
+	return UsersField{field{"teams", &teams}}
 }
 
 // The user's time zone identifier.
-func UsersTimeZoneIdentifier() UsersField {
+func UsersTimeZoneIdentifierField() UsersField {
 	return usersTimeZoneIdentifierField
 }
 
@@ -210,24 +178,7 @@ func UsersUTCHoursDifferenceField() UsersField {
 }
 
 type UsersArgument struct {
-	argument string
-	value    interface{}
-}
-
-func (a UsersArgument) stringify() string {
-	switch a.argument {
-	case "ids":
-		switch ids := a.value.([]int); {
-		case len(ids) == 1:
-			return fmt.Sprintf("ids:%d", ids[0])
-		case len(ids) > 1:
-			return fmt.Sprintf("ids:%s", strings.Replace(fmt.Sprint(ids), " ", ",", -1))
-		default:
-			return ""
-		}
-	default:
-		return fmt.Sprintf("%s:%v", a.argument, a.value)
-	}
+	arg argument
 }
 
 type UsersKind struct {
@@ -258,33 +209,21 @@ func NonPendingUsersKind() UsersKind {
 }
 
 // A list of users unique identifiers.
-func NewIDsUsersArg(ids []int) UsersArgument {
-	return UsersArgument{
-		argument: "ids",
-		value:    ids,
-	}
+func NewUsersIDsArgument(ids []int) UsersArgument {
+	return UsersArgument{argument{"ids", ids}}
 }
 
 // The kind to search users by (all / non_guests / guests / non_pending).
-func NewKindUsersArg(kind UsersKind) UsersArgument {
-	return UsersArgument{
-		argument: "kind",
-		value:    kind.kind,
-	}
+func NewUsersKindArgument(kind UsersKind) UsersArgument {
+	return UsersArgument{argument{"kind", kind.kind}}
 }
 
 // Get the recently created users at the top of the list.
-func NewNewestFirstUsersArg(first bool) UsersArgument {
-	return UsersArgument{
-		argument: "newest_first",
-		value:    first,
-	}
+func NewUsersNewestFirstArgument(first bool) UsersArgument {
+	return UsersArgument{argument{"newest_first", first}}
 }
 
 // Number of users to get.
-func NewLimitUsersArg(value int) UsersArgument {
-	return UsersArgument{
-		argument: "limit",
-		value:    value,
-	}
+func NewUsersLimitArgument(value int) UsersArgument {
+	return UsersArgument{argument{"limit", value}}
 }

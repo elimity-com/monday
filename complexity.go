@@ -1,54 +1,36 @@
 package monday
 
-import (
-	"fmt"
-	"strings"
-)
-
-type Complexity struct {
-	fields []ComplexityField
-}
-
-func (c Complexity) stringify() string {
-	fields := make([]string, 0)
-	for _, field := range c.fields {
-		fields = append(fields, field.stringify())
-	}
-	if len(fields) == 0 {
-		return ``
-	}
-	return fmt.Sprintf(`complexity{%s}`, strings.Join(fields, " "))
-}
-
-func NewComplexity(fields []ComplexityField) Complexity {
-	if len(fields) == 0 {
-		return Complexity{
-			fields: []ComplexityField{
-				ComplexityAfterField(),
-				ComplexityBeforeField(),
-				ComplexityQueryField(),
+func NewComplexity(complexityFields []ComplexityField) Query {
+	if len(complexityFields) == 0 {
+		return Query{
+			name: "complexity",
+			fields: []field{
+				ComplexityAfterField().field,
+				ComplexityBeforeField().field,
+				ComplexityQueryField().field,
 			},
 		}
 	}
 
-	return Complexity{
+	var fields []field
+	for _, cf := range complexityFields {
+		fields = append(fields, cf.field)
+	}
+	return Query{
+		name: "complexity",
 		fields: fields,
 	}
 }
 
 type ComplexityField struct {
-	field string
+	field field
 }
 
 var (
-	complexityAfterField  = ComplexityField{"after"}
-	complexityBeforeField = ComplexityField{"before"}
-	complexityQueryField  = ComplexityField{"query"}
+	complexityAfterField  = ComplexityField{field{"after", nil}}
+	complexityBeforeField = ComplexityField{field{"before", nil}}
+	complexityQueryField  = ComplexityField{field{"query", nil}}
 )
-
-func (f ComplexityField) stringify() string {
-	return fmt.Sprint(f.field)
-}
 
 // The remainder of complexity after the query's execution.
 func ComplexityAfterField() ComplexityField {

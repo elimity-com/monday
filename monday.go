@@ -35,10 +35,11 @@ func (c *Client) Exec(ctx context.Context, payload Payload) (*http.Response, err
 
 	var queries []string
 	for _, query := range payload.queries {
-		if query.str == "" {
+		str := query.stringify()
+		if str == "" {
 			continue
 		}
-		queries = append(queries, query.str)
+		queries = append(queries, str)
 	}
 	queryString := fmt.Sprintf("{%s}", strings.Join(queries, ""))
 	req, err := http.NewRequest(http.MethodPost, baseURL, strings.NewReader((url.Values{"query": []string{queryString}}).Encode()))

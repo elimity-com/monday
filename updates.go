@@ -1,79 +1,49 @@
 package monday
 
-import (
-	"fmt"
-	"strings"
-)
-
-type Updates struct {
-	fields []UpdatesField
-	args   []UpdatesArgument
-}
-
-func (u Updates) stringify() string {
-	fields := make([]string, 0)
-	for _, field := range u.fields {
-		fields = append(fields, field.stringify())
-	}
-	args := make([]string, 0)
-	for _, arg := range u.args {
-		args = append(args, arg.stringify())
-	}
-	if len(fields) == 0 {
-		return ``
-	}
-	if len(args) == 0 {
-		return fmt.Sprintf(`updates{%s}`, strings.Join(fields, " "))
-	}
-	return fmt.Sprintf(`updates(%s){%s}`, strings.Join(args, ","), strings.Join(fields, " "))
-}
-
-func NewUpdates(fields []UpdatesField) Updates {
-	if len(fields) == 0 {
-		return Updates{
-			fields: []UpdatesField{
-				UpdatesIDField(),
+func NewUpdates(updatesFields []UpdatesField) Query {
+	if len(updatesFields) == 0 {
+		return Query{
+			name: "updates",
+			fields: []field{
+				UpdatesIDField().field,
 			},
 		}
 	}
 
-	return Updates{
+	var fields []field
+	for _, uf := range updatesFields {
+		fields = append(fields, uf.field)
+	}
+	return Query{
+		name:   "updates",
 		fields: fields,
 	}
 }
 
-func NewUpdatesWithArguments(fields []UpdatesField, args []UpdatesArgument) Updates {
-	updates := NewUpdates(fields)
+func NewUpdatesWithArguments(updatesFields []UpdatesField, updatesArgs []UpdatesArgument) Query {
+	updates := NewUpdates(updatesFields)
+	var args []argument
+	for _, ua := range updatesArgs {
+		args = append(args, ua.arg)
+	}
 	updates.args = args
 	return updates
 }
 
 type UpdatesField struct {
-	field string
-	value interface{}
+	field field
 }
 
 var (
-	updatesBodyField      = UpdatesField{"body", nil}
-	updatesCreatedAtField = UpdatesField{"created_at", nil}
-	updatesCreatorIDField = UpdatesField{"creator_id", nil}
-	updatesIDField        = UpdatesField{"id", nil}
-	updatesItemIDField    = UpdatesField{"item_id", nil}
+	updatesBodyField      = UpdatesField{field{"body", nil}}
+	updatesCreatedAtField = UpdatesField{field{"created_at", nil}}
+	updatesCreatorIDField = UpdatesField{field{"creator_id", nil}}
+	updatesIDField        = UpdatesField{field{"id", nil}}
+	updatesItemIDField    = UpdatesField{field{"item_id", nil}}
 	// TODO: replies? nothing found in documentation
-	updatesTextBodyField  = UpdatesField{"text_body", nil}
-	updatesUpdatedAtField = UpdatesField{"updated_at", nil}
+	updatesTextBodyField  = UpdatesField{field{"text_body", nil}}
+	updatesUpdatedAtField = UpdatesField{field{"updated_at", nil}}
 )
-
-func (f UpdatesField) stringify() string {
-	switch f.field {
-	case "creator":
-		creator := f.value.(Users)
-		creator.alt = "creator"
-		return creator.stringify()
-	default:
-		return fmt.Sprint(f.field)
-	}
-}
 
 // The update's html formatted body.
 func UpdatesBodyField() UpdatesField {
@@ -86,8 +56,10 @@ func UpdatesCreatedAtField() UpdatesField {
 }
 
 // The update's creator.
-func UpdatesCreatorField(creator Users) UpdatesField {
-	return UpdatesField{field: "creator", value: creator}
+func NewUpdatesCreatorField(creatorFields []UsersField, creatorArguments []UsersArgument) UpdatesField {
+	creator := NewUsersWithArguments(creatorFields, creatorArguments)
+	creator.name = "creator"
+	return UpdatesField{field{"creator", &creator}}
 }
 
 // The unique identifier of the update creator.
@@ -116,26 +88,15 @@ func UpdatesUpdatedAtField() UpdatesField {
 }
 
 type UpdatesArgument struct {
-	argument string
-	value    interface{}
-}
-
-func (a UpdatesArgument) stringify() string {
-	return fmt.Sprintf("%s:%v", a.argument, a.value)
+	arg argument
 }
 
 // Number of items to get, the default is 25.
-func NewLimitUpdatesArg(value int) UpdatesArgument {
-	return UpdatesArgument{
-		argument: "limit",
-		value:    value,
-	}
+func NewUpdatesLimitArgument(value int) UpdatesArgument {
+	return UpdatesArgument{argument{"limit", value}}
 }
 
 // Page number to get, starting at 1.
-func NewPageUpdatesArg(value int) UpdatesArgument {
-	return UpdatesArgument{
-		argument: "page",
-		value:    value,
-	}
+func NewUpdatesPageArgument(value int) UpdatesArgument {
+	return UpdatesArgument{argument{"page", value}}
 }

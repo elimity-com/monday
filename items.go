@@ -1,99 +1,56 @@
 package monday
 
-import (
-	"fmt"
-	"strings"
-)
-
-type Items struct {
-	fields []ItemsField
-	args   []ItemsArgument
-}
-
-func (i Items) stringify() string {
-	fields := make([]string, 0)
-	for _, field := range i.fields {
-		fields = append(fields, field.stringify())
-	}
-	args := make([]string, 0)
-	for _, arg := range i.args {
-		args = append(args, arg.stringify())
-	}
-	if len(fields) == 0 {
-		return ``
-	}
-	if len(args) == 0 {
-		return fmt.Sprintf(`items{%s}`, strings.Join(fields, " "))
-	}
-	return fmt.Sprintf(`items(%s){%s}`, strings.Join(args, ","), strings.Join(fields, " "))
-}
-
-func NewItems(fields []ItemsField) Items {
-	if len(fields) == 0 {
-		return Items{
-			fields: []ItemsField{
-				ItemsIDField(),
+func NewItems(itemsFields []ItemsField) Query {
+	if len(itemsFields) == 0 {
+		return Query{
+			name: "items",
+			fields: []field{
+				ItemsIDField().field,
 			},
 		}
 	}
 
-	return Items{
+	var fields []field
+	for _, i := range itemsFields {
+		fields = append(fields, i.field)
+	}
+	return Query{
+		name:   "items",
 		fields: fields,
 	}
 }
 
-func NewItemsWithArguments(fields []ItemsField, args []ItemsArgument) Items {
-	items := NewItems(fields)
+func NewItemsWithArguments(itemsFields []ItemsField, itemsArgs []ItemsArgument) Query {
+	items := NewItems(itemsFields)
+	var args []argument
+	for _, ia := range itemsArgs {
+		args = append(args, ia.arg)
+	}
 	items.args = args
 	return items
 }
 
 type ItemsField struct {
-	field string
-	value interface{}
+	field field
 }
 
 var (
-	itemsCreatedAtField = ItemsField{"created_at", nil}
-	itemsCreatorIDField = ItemsField{"creator_id", nil}
-	itemsIDField        = ItemsField{"id", nil}
-	itemsNameField      = ItemsField{"name", nil}
-	itemsStateField     = ItemsField{"state", nil}
-	itemsUpdatedAtField = ItemsField{"updated_at", nil}
+	itemsCreatedAtField = ItemsField{field{"created_at", nil}}
+	itemsCreatorIDField = ItemsField{field{"creator_id", nil}}
+	itemsIDField        = ItemsField{field{"id", nil}}
+	itemsNameField      = ItemsField{field{"name", nil}}
+	itemsStateField     = ItemsField{field{"state", nil}}
+	itemsUpdatedAtField = ItemsField{field{"updated_at", nil}}
 )
 
-func (f ItemsField) stringify() string {
-	switch f.field {
-	case "boards":
-		return f.value.(Boards).stringify()
-	case "column_values":
-		return f.value.(ColumnValues).stringify()
-	case "creator":
-		creator := f.value.(Users)
-		creator.alt = "creator"
-		return creator.stringify()
-	case "group":
-		group := f.value.(Groups)
-		group.alt = "group"
-		return group.stringify()
-	case "subscribers":
-		return f.value.(Users).stringify()
-	case "updates":
-		return f.value.(Updates).stringify()
-	default:
-		return fmt.Sprint(f.field)
-	}
-}
-
 // The board that contains this item.
-func NewItemsBoardsField(boards Boards) ItemsField {
-	return ItemsField{field: "boards", value: boards}
+func NewItemsBoardField(boardsFields []BoardsField, boardsArguments []BoardsArgument) ItemsField {
+	board := NewBoardsWithArguments(boardsFields, boardsArguments)
+	board.name = "board"
+	return ItemsField{field{"boards", &board}}
 }
 
-// The item's column values.
-func NewItemsColumnValuesField(values ColumnValues) ItemsField {
-	return ItemsField{field: "column_values", value: values}
-}
+// TODO: column_values
 
 // The item's create date.
 func ItemsCreatedAtField() ItemsField {
@@ -101,8 +58,10 @@ func ItemsCreatedAtField() ItemsField {
 }
 
 // The item's creator.
-func NewItemsCreatorField(creator Users) ItemsField {
-	return ItemsField{field: "creator", value: creator}
+func NewItemsCreatorField(creatorFields []UsersField, creatorArguments []UsersArgument) ItemsField {
+	creator := NewUsersWithArguments(creatorFields, creatorArguments)
+	creator.name = "creator"
+	return ItemsField{field{"creator", &creator}}
 }
 
 // The unique identifier of the item creator.
@@ -111,8 +70,10 @@ func ItemsCreatorIDField() ItemsField {
 }
 
 // The group that contains this item.
-func NewItemsGroupsField(groups Groups) ItemsField {
-	return ItemsField{field: "groups", value: groups}
+func NewItemsGroupField(groupsFields []GroupsField, groupsArguments []GroupsArgument) ItemsField {
+	group := NewGroupWithArguments(groupsFields, groupsArguments)
+	group.name = "group"
+	return ItemsField{field{"groups", &group}}
 }
 
 // The item's unique identifier.
@@ -131,8 +92,10 @@ func ItemsStateField() ItemsField {
 }
 
 // The pulses's subscribers.
-func NewItemsSubscribersField(subscribers Users) ItemsField {
-	return ItemsField{field: "subscribers", value: subscribers}
+func NewItemsSubscribersField(subscribersFields []UsersField, subscribersArguments []UsersArgument) ItemsField {
+	subscribers := NewUsersWithArguments(subscribersFields, subscribersArguments)
+	subscribers.name = "subscribers"
+	return ItemsField{field{"subscribers", &subscribers}}
 }
 
 // The item's last update date.
@@ -141,59 +104,28 @@ func ItemsUpdatedAtField() ItemsField {
 }
 
 // The item's updates.
-func NewItemsUpdatesField(updates Updates) ItemsField {
-	return ItemsField{field: "updates", value: updates}
+func NewItemsUpdatesField(updatesFields []UpdatesField, updatesArguments []UpdatesArgument) ItemsField {
+	updates := NewUpdatesWithArguments(updatesFields, updatesArguments)
+	return ItemsField{field{"updates", &updates}}
 }
 
 type ItemsArgument struct {
-	argument string
-	value    interface{}
-}
-
-func (a ItemsArgument) stringify() string {
-	switch a.argument {
-	case "ids":
-		switch ids := a.value.([]int); {
-		case len(ids) == 1:
-			return fmt.Sprintf("ids:%d", ids[0])
-		case len(ids) > 1:
-			return fmt.Sprintf("ids:%s", strings.Replace(fmt.Sprint(ids), " ", ",", -1))
-		default:
-			return ""
-		}
-	default:
-		return fmt.Sprintf("%s:%v", a.argument, a.value)
-	}
+	arg argument
 }
 
 // Number of items to get, the default is 25.
-func NewLimitItemsArg(value int) ItemsArgument {
-	return ItemsArgument{
-		argument: "limit",
-		value:    value,
-	}
+func NewItemsLimitArgument(value int) ItemsArgument {
+	return ItemsArgument{argument{"limit", value}}
 }
 
 // Page number to get, starting at 1.
-func NewPageItemsArg(value int) ItemsArgument {
-	return ItemsArgument{
-		argument: "page",
-		value:    value,
-	}
+func NewItemsPageArgument(value int) ItemsArgument {
+	return ItemsArgument{argument{"page", value}}
 }
 
 // A list of items unique identifiers.
-func NewIDsItemsArg(ids []int) ItemsArgument {
-	return ItemsArgument{
-		argument: "ids",
-		value:    ids,
-	}
+func NewItemsIDsArgument(ids []int) ItemsArgument {
+	return ItemsArgument{argument{"ids", ids}}
 }
 
-// Get the recently created items at the top of the list.
-func NewNewestFirstItemsArg(first bool) ItemsArgument {
-	return ItemsArgument{
-		argument: "newest_first",
-		value:    first,
-	}
-}
+// TODO: 'items' doesn't accept argument 'newest_first'?
