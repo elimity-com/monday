@@ -293,6 +293,7 @@ func TestStructures(t *testing.T) {
 			"Fields1": {
 				query: NewUsers(
 					[]UsersField{
+						NewUsersAccountField(nil),
 						UsersBirthDayField(),
 						UsersCountryCodeField(),
 						UsersCreatedAtField(),
@@ -308,7 +309,7 @@ func TestStructures(t *testing.T) {
 						UsersPhoneField(),
 					},
 				),
-				str: `users{birthday country_code created_at email enabled id is_guest is_pending join_date location mobile_phone name phone}`,
+				str: `users{account{id} birthday country_code created_at email enabled id is_guest is_pending join_date location mobile_phone name phone}`,
 			},
 			"Fields2": {
 				query: NewUsers(
@@ -358,6 +359,26 @@ func TestStructures(t *testing.T) {
 			"Simple": {
 				query: NewComplexity(nil),
 				str:   `complexity{after before query}`,
+			},
+		},
+		"Account": {
+			"Simple": {
+				query: NewAccount(nil),
+				str:   `account{id}`,
+			},
+			"Fields": {
+				query: NewAccount(
+					[]AccountField{
+						AccountFirstDayOfTheWeekField(),
+						AccountIDField(),
+						AccountLogoField(),
+						AccountNameField(),
+						AccountPlanField(nil),
+						AccountShowTimelineWeekendsField(),
+						AccountSlugField(),
+					},
+				),
+				str: `account{first_day_of_the_week id logo name plan{max_users period tier version} show_timeline_weekends slug}`,
 			},
 		},
 	}

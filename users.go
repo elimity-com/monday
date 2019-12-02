@@ -59,7 +59,11 @@ var (
 	usersUTCHoursDifference      = UsersField{field{"utc_hours_diff", nil}}
 )
 
-// TODO: account? nothing found in documentation
+// The user's account.
+func NewUsersAccountField(accountFields []AccountField) UsersField {
+	account := NewAccount(accountFields)
+	return UsersField{field{"account", &account}}
+}
 
 // The user's birthday.
 func UsersBirthDayField() UsersField {

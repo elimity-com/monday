@@ -31,10 +31,6 @@ var (
 	columnValuesValueField          = ColumnValuesField{field{"value", nil}}
 )
 
-type ColumnValuesArgument struct {
-	arg argument
-}
-
 // The column value's additional information.
 func ColumnValuesAdditionalInfoField() ColumnValuesField {
 	return columnValuesAdditionalInfoField
@@ -58,6 +54,10 @@ func ColumnValuesTitleField() ColumnValuesField {
 // The column's value in json format.
 func ColumnValuesValueField() ColumnValuesField {
 	return columnValuesValueField
+}
+
+type ColumnValuesArgument struct {
+	arg argument
 }
 
 // A list of column ids to return.
