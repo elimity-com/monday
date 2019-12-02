@@ -145,9 +145,10 @@ func TestStructures(t *testing.T) {
 						NewItemsIDsArgument([]int{1}),
 						NewItemsPageArgument(1),
 						NewItemsLimitArgument(1),
+						NewItemsNewestFirst(true),
 					},
 				),
-				str: `items(ids:1,page:1,limit:1){id}`,
+				str: `items(ids:1,page:1,limit:1,newest_first:true){id}`,
 			},
 			"Fields1": {
 				query: NewItems(
@@ -155,24 +156,25 @@ func TestStructures(t *testing.T) {
 						ItemsIDField(),
 						ItemsNameField(),
 						NewItemsBoardField(nil, nil),
+						NewItemsColumnValuesField(nil, nil),
 						NewItemsGroupField(nil, nil),
 						ItemsStateField(),
 						NewItemsCreatorField(nil, nil),
 						NewItemsUpdatesField(nil, nil),
-						ItemsCreatedAtField(),
 					},
 				),
-				str: `items{id name board{id} group{id} state creator{id} updates{id} created_at}`,
+				str: `items{id name board{id} column_values{id} group{id} state creator{id} updates{id}}`,
 			},
 			"Fields2": {
 				query: NewItems(
 					[]ItemsField{
+						ItemsCreatedAtField(),
 						ItemsCreatorIDField(),
 						ItemsUpdatedAtField(),
 						NewItemsSubscribersField(nil, nil),
 					},
 				),
-				str: `items{creator_id updated_at subscribers{id}}`,
+				str: `items{created_at creator_id updated_at subscribers{id}}`,
 			},
 		},
 		"ItemsByColumnValues": {
@@ -201,6 +203,7 @@ func TestStructures(t *testing.T) {
 						ItemsByColumnValuesIDField(),
 						ItemsByColumnValuesNameField(),
 						NewItemsByColumnValuesBoardField(nil, nil),
+						NewItemsByColumnValuesColumnValuesField(nil, nil),
 						NewItemsByColumnValuesGroupField(nil, nil),
 						ItemsByColumnValuesStateField(),
 						NewItemsByColumnValuesCreatorField(nil, nil),
@@ -211,7 +214,7 @@ func TestStructures(t *testing.T) {
 						NewItemsByColumnValuesSubscribersField(nil, nil),
 					},
 				),
-				str: `items_by_column_values{id name board{id} group{id} state creator{id} updates{id} created_at creator_id updated_at subscribers{id}}`,
+				str: `items_by_column_values{id name board{id} column_values{id} group{id} state creator{id} updates{id} created_at creator_id updated_at subscribers{id}}`,
 			},
 		},
 		"Updates": {

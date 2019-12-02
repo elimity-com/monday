@@ -50,7 +50,11 @@ func NewItemsBoardField(boardsFields []BoardsField, boardsArguments []BoardsArgu
 	return ItemsField{field{"boards", &board}}
 }
 
-// TODO: column_values
+// The item's column values.
+func NewItemsColumnValuesField(valuesFields []ColumnValuesField, valuesArguments []ColumnValuesArgument) ItemsField {
+	values := newColumnValuesWithArguments(valuesFields, valuesArguments)
+	return ItemsField{field{"column_values", &values}}
+}
 
 // The item's create date.
 func ItemsCreatedAtField() ItemsField {
@@ -128,4 +132,7 @@ func NewItemsIDsArgument(ids []int) ItemsArgument {
 	return ItemsArgument{argument{"ids", ids}}
 }
 
-// TODO: 'items' doesn't accept argument 'newest_first'?
+// Get the recently created items at the top of the list.
+func NewItemsNewestFirst(value bool) ItemsArgument {
+	return ItemsArgument{argument{"newest_first", value}}
+}

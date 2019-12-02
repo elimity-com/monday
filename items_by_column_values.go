@@ -50,7 +50,11 @@ func NewItemsByColumnValuesBoardField(boardFields []BoardsField, boardArguments 
 	return ItemsByColumnValuesField{field{"boards", &board}}
 }
 
-// TODO: column_values
+// The item's column values.
+func NewItemsByColumnValuesColumnValuesField(valuesFields []ColumnValuesField, valuesArguments []ColumnValuesArgument) ItemsByColumnValuesField {
+	values := newColumnValuesWithArguments(valuesFields, valuesArguments)
+	return ItemsByColumnValuesField{field{"column_values", &values}}
+}
 
 // The item's create date.
 func ItemsByColumnValuesCreatedAtField() ItemsByColumnValuesField {
