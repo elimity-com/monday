@@ -179,26 +179,25 @@ func TestStructures(t *testing.T) {
 		},
 		"ItemsByColumnValues": {
 			"Simple": {
-				query: NewItemsByColumnValues(nil),
-				str:   `items_by_column_values{id}`,
+				query: NewItemsByColumnValues(1, "x", "x", nil),
+				str:   `items_by_column_values(board_id:1,column_id:"x",column_value:"x"){id}`,
 			},
 			"Args": {
 				query: NewItemsByColumnValuesWithArguments(
+					1, "x", "x",
 					nil,
 					[]ItemsByColumnValuesArgument{
 						NewItemsByColumnValuesPageArgument(1),
 						NewItemsByColumnValuesLimitArgument(1),
 						NewItemsByColumnValuesStateArgument(ActiveState()),
-						NewItemsByColumnValuesBoardIDArgument(1),
-						NewItemsByColumnValuesColumnIDArgument("x"),
 						NewItemsByColumnValuesColumnTypeArgument("x"),
-						NewItemsByColumnValuesColumnValueArgument("x"),
 					},
 				),
-				str: `items_by_column_values(page:1,limit:1,state:active,board_id:1,column_id:"x",column_type:"x",column_value:"x"){id}`,
+				str: `items_by_column_values(board_id:1,column_id:"x",column_value:"x",page:1,limit:1,state:active,column_type:"x"){id}`,
 			},
 			"Fields1": {
 				query: NewItemsByColumnValues(
+					1, "x", "x",
 					[]ItemsByColumnValuesField{
 						ItemsByColumnValuesIDField(),
 						ItemsByColumnValuesNameField(),
@@ -214,7 +213,7 @@ func TestStructures(t *testing.T) {
 						NewItemsByColumnValuesSubscribersField(nil, nil),
 					},
 				),
-				str: `items_by_column_values{id name board{id} column_values{id} group{id} state creator{id} updates{id} created_at creator_id updated_at subscribers{id}}`,
+				str: `items_by_column_values(board_id:1,column_id:"x",column_value:"x"){id name board{id} column_values{id} group{id} state creator{id} updates{id} created_at creator_id updated_at subscribers{id}}`,
 			},
 		},
 		"Updates": {

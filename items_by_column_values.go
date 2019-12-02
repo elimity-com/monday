@@ -1,12 +1,19 @@
 package monday
 
-func NewItemsByColumnValues(columnValuesFields []ItemsByColumnValuesField) Query {
+func NewItemsByColumnValues(boardID int, columnID, columnValue string, columnValuesFields []ItemsByColumnValuesField) Query {
+	args := []argument{
+		newItemsByColumnValuesBoardIDArgument(boardID).arg,
+		newItemsByColumnValuesColumnIDArgument(columnID).arg,
+		newItemsByColumnValuesColumnValueArgument(columnValue).arg,
+	}
+
 	if len(columnValuesFields) == 0 {
 		return Query{
 			name: "items_by_column_values",
 			fields: []field{
 				ItemsByColumnValuesIDField().field,
 			},
+			args: args,
 		}
 	}
 
@@ -17,16 +24,15 @@ func NewItemsByColumnValues(columnValuesFields []ItemsByColumnValuesField) Query
 	return Query{
 		name:   "items_by_column_values",
 		fields: fields,
+		args:   args,
 	}
 }
 
-func NewItemsByColumnValuesWithArguments(columnValuesFields []ItemsByColumnValuesField, columnValuesArgs []ItemsByColumnValuesArgument) Query {
-	columnValues := NewItemsByColumnValues(columnValuesFields)
-	var args []argument
+func NewItemsByColumnValuesWithArguments(boardID int, columnID, columnValue string, columnValuesFields []ItemsByColumnValuesField, columnValuesArgs []ItemsByColumnValuesArgument) Query {
+	columnValues := NewItemsByColumnValues(boardID, columnID, columnValue, columnValuesFields)
 	for _, va := range columnValuesArgs {
-		args = append(args, va.arg)
+		columnValues.args = append(columnValues.args, va.arg)
 	}
-	columnValues.args = args
 	return columnValues
 }
 
@@ -128,17 +134,17 @@ func NewItemsByColumnValuesPageArgument(value int) ItemsByColumnValuesArgument {
 }
 
 // The board's unique identifier.
-func NewItemsByColumnValuesBoardIDArgument(value int) ItemsByColumnValuesArgument {
+func newItemsByColumnValuesBoardIDArgument(value int) ItemsByColumnValuesArgument {
 	return ItemsByColumnValuesArgument{argument{"board_id", value}}
 }
 
 // The column's unique identifier.
-func NewItemsByColumnValuesColumnIDArgument(value string) ItemsByColumnValuesArgument {
+func newItemsByColumnValuesColumnIDArgument(value string) ItemsByColumnValuesArgument {
 	return ItemsByColumnValuesArgument{argument{"column_id", value}}
 }
 
 // The column value to search items by.
-func NewItemsByColumnValuesColumnValueArgument(value string) ItemsByColumnValuesArgument {
+func newItemsByColumnValuesColumnValueArgument(value string) ItemsByColumnValuesArgument {
 	return ItemsByColumnValuesArgument{argument{"column_value", value}}
 }
 
