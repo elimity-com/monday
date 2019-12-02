@@ -40,7 +40,6 @@ var (
 	updatesCreatorIDField = UpdatesField{field{"creator_id", nil}}
 	updatesIDField        = UpdatesField{field{"id", nil}}
 	updatesItemIDField    = UpdatesField{field{"item_id", nil}}
-	// TODO: replies? nothing found in documentation
 	updatesTextBodyField  = UpdatesField{field{"text_body", nil}}
 	updatesUpdatedAtField = UpdatesField{field{"updated_at", nil}}
 )
@@ -72,9 +71,15 @@ func UpdatesIDField() UpdatesField {
 	return updatesIDField
 }
 
-//The update's item ID.
+// The update's item ID.
 func UpdatesItemIDField() UpdatesField {
 	return updatesItemIDField
+}
+
+// The update's replies.
+func NewUpdatesRepliesField(repliesFields []RepliesField) UpdatesField {
+	replies := newReplies(repliesFields)
+	return UpdatesField{field{"replies", &replies}}
 }
 
 // The update's text body.

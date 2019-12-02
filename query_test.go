@@ -241,11 +241,12 @@ func TestStructures(t *testing.T) {
 						UpdatesCreatorIDField(),
 						UpdatesIDField(),
 						UpdatesItemIDField(),
+						NewUpdatesRepliesField(nil),
 						UpdatesTextBodyField(),
 						UpdatesUpdatedAtField(),
 					},
 				),
-				str: `updates{body updated_at creator{id} creator_id id item_id text_body updated_at}`,
+				str: `updates{body updated_at creator{id} creator_id id item_id replies{id} text_body updated_at}`,
 			},
 		},
 		"Tags": {
