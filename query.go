@@ -5,10 +5,6 @@ import (
 	"strings"
 )
 
-type Payload struct {
-	queries []Query
-}
-
 func NewQueryPayload(queries ...Query) Payload {
 	return Payload{queries: queries}
 }

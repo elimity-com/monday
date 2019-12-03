@@ -3,5 +3,39 @@
 
 monday is a go client library for accessing the [monday api v2](https://monday.com/developers/v2)
 
-## querying monday.com entities
+## using graphql
 [GraphiQL](https://monday.com/developers/v2/try-it-yourself) (an in-browser tool for writing, validating, and testing GraphQL queries
+
+## querying monday.com entities
+```go
+NewClient(mondayAPIToken, nil).Exec(context.Background(), NewQueryPayload(
+    NewBoardsWithArguments(
+        nil,
+        []BoardsArgument{
+            NewBoardsIDsArgument([]int{boardID}),
+        },
+    ),
+))
+```
+the code above executes the following query
+```graphql
+query {
+    boards(ids: boardID) {
+       id
+    }
+}
+```
+## mutating monday.com entities
+```go
+NewClient(mondayAPIToken, nil).Exec(context.Background(), NewMutationPayload(
+    CreateBoard(boardName, PublicBoardsKind(), nil),
+))
+```
+the code above executes the following mutation
+```graphql
+mutation {
+    create_board(board_name: boardName, board_kind: public) {
+       id
+    }
+}
+```

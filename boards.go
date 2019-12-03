@@ -1,5 +1,48 @@
 package monday
 
+func CreateBoard(name string, kind BoardsKind, boardsFields []BoardsField) Mutation {
+	if len(boardsFields) == 0 {
+		boardsFields = append(boardsFields, boardsIDField)
+	}
+
+	var fields []field
+	for _, bf := range boardsFields {
+		fields = append(fields, bf.field)
+	}
+	return Mutation{
+		name:   "create_board",
+		fields: fields,
+		args: []argument{
+			{"board_name", name},
+			{"board_kind", kind.kind},
+		},
+	}
+}
+
+func CreatBoardFromTemplate(name string, kind BoardsKind, templateID int, boardsFields []BoardsField) Mutation {
+	board := CreateBoard(name, kind, boardsFields)
+	board.args = append(board.args, argument{"template_id", templateID})
+	return board
+}
+
+func ArchiveBoard(boardID int, boardsFields []BoardsField) Mutation {
+	if len(boardsFields) == 0 {
+		boardsFields = append(boardsFields, boardsIDField)
+	}
+
+	var fields []field
+	for _, bf := range boardsFields {
+		fields = append(fields, bf.field)
+	}
+	return Mutation{
+		name:   "archive_board",
+		fields: fields,
+		args: []argument{
+			{"board_id", boardID},
+		},
+	}
+}
+
 func NewBoards(boardsFields []BoardsField) Query {
 	if len(boardsFields) == 0 {
 		return Query{

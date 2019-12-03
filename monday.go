@@ -41,8 +41,25 @@ func (c *Client) Exec(ctx context.Context, payload Payload) (*http.Response, err
 		}
 		queries = append(queries, str)
 	}
-	queryString := fmt.Sprintf("{%s}", strings.Join(queries, ""))
-	req, err := http.NewRequest(http.MethodPost, baseURL, strings.NewReader((url.Values{"query": []string{queryString}}).Encode()))
+	var mutations []string
+	for _, mutation := range payload.mutations {
+		str := mutation.stringify()
+		if str == "" {
+			continue
+		}
+		mutations = append(mutations, str)
+	}
+	var query []string
+	if len(queries) != 0 {
+		query = append(query, fmt.Sprintf("{%s}", strings.Join(queries, "")))
+	}
+	if len(mutations) != 0 {
+		query = append(query, fmt.Sprintf("mutation{%s}", strings.Join(mutations, "")))
+	}
+	fmt.Println(query)
+	req, err := http.NewRequest(http.MethodPost, baseURL, strings.NewReader(
+		(url.Values{"query": query,}).Encode(),
+	))
 	if err != nil {
 		return nil, err
 	}
@@ -53,4 +70,9 @@ func (c *Client) Exec(ctx context.Context, payload Payload) (*http.Response, err
 		return nil, err
 	}
 	return resp, nil
+}
+
+type Payload struct {
+	queries   []Query
+	mutations []Mutation
 }
