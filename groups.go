@@ -1,5 +1,88 @@
 package monday
 
+func DuplicateGroup(boardID int, groupID string, AddToTop bool, groupsFields []GroupsField) Mutation {
+	if len(groupsFields) == 0 {
+		groupsFields = append(groupsFields, groupsIDField)
+	}
+
+	var fields []field
+	for _, gf := range groupsFields {
+		fields = append(fields, gf.field)
+	}
+	return Mutation{
+		name:   "duplicate_group",
+		fields: fields,
+		args: []argument{
+			{"board_id", boardID},
+			{"group_id", groupID},
+			{"add_to_top", AddToTop},
+		},
+	}
+}
+
+func DuplicateGroupWidthNewTitle(boardID int, groupID string, AddToTop bool, groupTitle string, groupsFields []GroupsField) Mutation {
+	group := DuplicateGroup(boardID, groupID, AddToTop, groupsFields)
+	group.args = append(group.args, argument{"group_title", groupTitle})
+	return group
+}
+
+func CreateGroup(boardID int, groupName string, groupsFields []GroupsField) Mutation {
+	if len(groupsFields) == 0 {
+		groupsFields = append(groupsFields, groupsIDField)
+	}
+
+	var fields []field
+	for _, gf := range groupsFields {
+		fields = append(fields, gf.field)
+	}
+	return Mutation{
+		name:   "create_group",
+		fields: fields,
+		args: []argument{
+			{"board_id", boardID},
+			{"group_name", groupName},
+		},
+	}
+}
+
+func ArchiveGroup(boardID int, groupID string, groupsFields []GroupsField) Mutation {
+	if len(groupsFields) == 0 {
+		groupsFields = append(groupsFields, groupsIDField)
+	}
+
+	var fields []field
+	for _, gf := range groupsFields {
+		fields = append(fields, gf.field)
+	}
+	return Mutation{
+		name:   "archive_group",
+		fields: fields,
+		args: []argument{
+			{"board_id", boardID},
+			{"group_id", groupID},
+		},
+	}
+}
+
+func DeleteGroup(boardID int, groupID string, groupsFields []GroupsField) Mutation {
+	if len(groupsFields) == 0 {
+		groupsFields = append(groupsFields, groupsIDField)
+	}
+
+	var fields []field
+	for _, gf := range groupsFields {
+		fields = append(fields, gf.field)
+	}
+	return Mutation{
+		name:   "delete_group",
+		fields: fields,
+		args: []argument{
+			{"board_id", boardID},
+			{"group_id", groupID},
+		},
+	}
+}
+
 func NewGroups(groupsFields []GroupsField) Query {
 	if len(groupsFields) == 0 {
 		return Query{
