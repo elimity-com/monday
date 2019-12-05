@@ -181,21 +181,21 @@ type BoardsKind struct {
 }
 
 var (
-	publicBoardsKind  = BoardsKind{"public"}
-	privateBoardsKind = BoardsKind{"private"}
-	shareBoardsKind   = BoardsKind{"share"}
+	boardsKindPublic  = BoardsKind{"public"}
+	boardsKindPrivate = BoardsKind{"private"}
+	boardsKindShare   = BoardsKind{"share"}
 )
 
-func PublicBoardsKind() BoardsKind {
-	return publicBoardsKind
+func BoardsKindPublic() BoardsKind {
+	return boardsKindPublic
 }
 
-func PrivateBoardsKind() BoardsKind {
-	return privateBoardsKind
+func BoardsKindPrivate() BoardsKind {
+	return boardsKindPrivate
 }
 
-func ShareBoardsKind() BoardsKind {
-	return shareBoardsKind
+func BoardsKindShare() BoardsKind {
+	return boardsKindShare
 }
 
 // Number of items to get, the default is 25.
