@@ -1,5 +1,81 @@
 package monday
 
+func CreateItems(boardID int, groupID string, name, values string, itemsFields []ItemsField) Mutation {
+	if len(itemsFields) == 0 {
+		itemsFields = append(itemsFields, itemsIDField)
+	}
+
+	var fields []field
+	for _, i := range itemsFields {
+		fields = append(fields, i.field)
+	}
+	return Mutation{
+		name:   "create_item",
+		fields: fields,
+		args: []argument{
+			{"board_id", boardID},
+			{"group_id", groupID},
+			{"item_name", name},
+			{"column_values", values},
+		},
+	}
+}
+
+func MoveItemToGroup(itemID int, groupID string, itemsFields []ItemsField) Mutation {
+	if len(itemsFields) == 0 {
+		itemsFields = append(itemsFields, itemsIDField)
+	}
+
+	var fields []field
+	for _, i := range itemsFields {
+		fields = append(fields, i.field)
+	}
+	return Mutation{
+		name:   "move_item_to_group",
+		fields: fields,
+		args: []argument{
+			{"item_id", itemID},
+			{"group_id", groupID},
+		},
+	}
+}
+
+func ArchiveItem(itemID int, itemsFields []ItemsField) Mutation {
+	if len(itemsFields) == 0 {
+		itemsFields = append(itemsFields, itemsIDField)
+	}
+
+	var fields []field
+	for _, i := range itemsFields {
+		fields = append(fields, i.field)
+	}
+	return Mutation{
+		name:   "archive_item",
+		fields: fields,
+		args: []argument{
+			{"item_id", itemID},
+		},
+	}
+}
+
+func DeleteItem(itemID int, itemsFields []ItemsField) Mutation {
+	if len(itemsFields) == 0 {
+		itemsFields = append(itemsFields, itemsIDField)
+	}
+
+	var fields []field
+	for _, i := range itemsFields {
+		fields = append(fields, i.field)
+	}
+	return Mutation{
+		name:   "delete_item",
+		fields: fields,
+		args: []argument{
+			{"item_id", itemID},
+		},
+	}
+}
+
 func NewItems(itemsFields []ItemsField) Query {
 	if len(itemsFields) == 0 {
 		return Query{
