@@ -1,6 +1,6 @@
 package monday
 
-func NewItemsByColumnValues(boardID int, columnID, columnValue string, columnValuesFields []ItemsByColumnValuesField) Query {
+func NewItemsByColumnValues(boardID int, columnID string, columnValue ColumnValue, columnValuesFields []ItemsByColumnValuesField) Query {
 	args := []argument{
 		newItemsByColumnValuesBoardIDArgument(boardID).arg,
 		newItemsByColumnValuesColumnIDArgument(columnID).arg,
@@ -28,7 +28,7 @@ func NewItemsByColumnValues(boardID int, columnID, columnValue string, columnVal
 	}
 }
 
-func NewItemsByColumnValuesWithArguments(boardID int, columnID, columnValue string, columnValuesFields []ItemsByColumnValuesField, columnValuesArgs []ItemsByColumnValuesArgument) Query {
+func NewItemsByColumnValuesWithArguments(boardID int, columnID string, columnValue ColumnValue, columnValuesFields []ItemsByColumnValuesField, columnValuesArgs []ItemsByColumnValuesArgument) Query {
 	columnValues := NewItemsByColumnValues(boardID, columnID, columnValue, columnValuesFields)
 	for _, va := range columnValuesArgs {
 		columnValues.args = append(columnValues.args, va.arg)
@@ -144,8 +144,8 @@ func newItemsByColumnValuesColumnIDArgument(value string) ItemsByColumnValuesArg
 }
 
 // The column value to search items by.
-func newItemsByColumnValuesColumnValueArgument(value string) ItemsByColumnValuesArgument {
-	return ItemsByColumnValuesArgument{argument{"column_value", value}}
+func newItemsByColumnValuesColumnValueArgument(value ColumnValue) ItemsByColumnValuesArgument {
+	return ItemsByColumnValuesArgument{argument{"column_value", value.value}}
 }
 
 // The column type.

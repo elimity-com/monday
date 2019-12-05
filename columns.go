@@ -20,7 +20,7 @@ func CreateColumn(boardID int, title string, columnsType ColumnsType, columnsFie
 	}
 }
 
-func ChangeColumnValue(itemID int, columnID string, boardID int, value string, itemsFields []ItemsField) Mutation {
+func ChangeColumnValue(itemID int, columnID string, boardID int, value ColumnValue, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
 	}

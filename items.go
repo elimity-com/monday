@@ -1,6 +1,6 @@
 package monday
 
-func CreateItems(boardID int, groupID string, name, values string, itemsFields []ItemsField) Mutation {
+func CreateItems(boardID int, groupID string, name, values ColumnValues, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
 	}
@@ -16,7 +16,7 @@ func CreateItems(boardID int, groupID string, name, values string, itemsFields [
 			{"board_id", boardID},
 			{"group_id", groupID},
 			{"item_name", name},
-			{"column_values", values},
+			{"column_values", values.join()},
 		},
 	}
 }

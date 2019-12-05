@@ -56,7 +56,6 @@ func (c *Client) Exec(ctx context.Context, payload Payload) (*http.Response, err
 	if len(mutations) != 0 {
 		query = append(query, fmt.Sprintf("mutation{%s}", strings.Join(mutations, "")))
 	}
-	fmt.Println(query)
 	req, err := http.NewRequest(http.MethodPost, baseURL, strings.NewReader(
 		(url.Values{"query": query,}).Encode(),
 	))
