@@ -1,6 +1,6 @@
 package monday
 
-func CreateNotification(notificationFields []NotificationField, notificationArguments []NotificationArgument) Mutation {
+func CreateNotification(userID, targetID int, text string, targetType NotificationType, notificationFields []NotificationField) Mutation {
 	if len(notificationFields) == 0 {
 		notificationFields = append(notificationFields, notificationTextField)
 	}
@@ -8,15 +8,22 @@ func CreateNotification(notificationFields []NotificationField, notificationArgu
 	for _, nf := range notificationFields {
 		fields = append(fields, nf.field)
 	}
-	var args []argument
-	for _, na := range notificationArguments {
-		args = append(args, na.arg)
-	}
 	return Mutation{
 		name:   "create_notification",
 		fields: fields,
-		args:   args,
+		args: []argument{
+			{"text", text},
+			{"user_id", userID},
+			{"target_id", targetID},
+			{"target_type", targetType.kind},
+		},
 	}
+}
+
+func CreateNotificationWithPayload(userID, targetID int, text, payload string, targetType NotificationType, notificationFields []NotificationField) Mutation {
+	notification := CreateNotification(userID, targetID, text, targetType, notificationFields)
+	notification.args = append(notification.args, argument{"payload", payload})
+	return notification
 }
 
 type NotificationField struct {
@@ -59,29 +66,4 @@ func NotificationTypeProject() NotificationType {
 // Update.
 func NotificationTypePost() NotificationType {
 	return notificationTypePost
-}
-
-// The notification text.
-func NewNotificationTextField(value string) NotificationArgument {
-	return NotificationArgument{argument{"text", value}}
-}
-
-// The user's unique identifier.
-func NewNotificationUserIDField(value int) NotificationArgument {
-	return NotificationArgument{argument{"user_id", value}}
-}
-
-// The target's unique identifier.
-func NewNotificationTargetIDField(value int) NotificationArgument {
-	return NotificationArgument{argument{"target_id", nil}}
-}
-
-// The target's type (Project / Post).
-func NewNotificationTargetTypeField(value NotificationType) NotificationArgument {
-	return NotificationArgument{argument{"target_type", value.kind}}
-}
-
-// The notification payload.
-func NewNotificationPayloadField(value string) NotificationArgument {
-	return NotificationArgument{argument{"payload", value}}
 }
