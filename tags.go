@@ -1,5 +1,29 @@
 package monday
 
+func CreateOrGetTag(name string, tagsFields []TagsField) Mutation {
+	if len(tagsFields) == 0 {
+		tagsFields = append(tagsFields, tagsIDField)
+	}
+
+	var fields []field
+	for _, tf := range tagsFields {
+		fields = append(fields, tf.field)
+	}
+	return Mutation{
+		name:   "create_or_get_tag",
+		fields: fields,
+		args: []argument{
+			{"tag_name", name},
+		},
+	}
+}
+
+func CreateOrGetTagsFromBoard(name string, boardID int, tagsFields []TagsField) Mutation {
+	tag := CreateOrGetTag(name, tagsFields)
+	tag.args = append(tag.args, argument{"board_id", boardID})
+	return tag
+}
+
 func NewTags(tagsFields []TagsField) Query {
 	if len(tagsFields) == 0 {
 		return Query{
