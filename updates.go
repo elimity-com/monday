@@ -1,5 +1,24 @@
 package monday
 
+func CreateUpdate(itemID int, body string, updatesFields []UpdatesField) Mutation {
+	if len(updatesFields) == 0 {
+		updatesFields = append(updatesFields, updatesIDField)
+	}
+
+	var fields []field
+	for _, uf := range updatesFields {
+		fields = append(fields, uf.field)
+	}
+	return Mutation{
+		name:   "create_update",
+		fields: fields,
+		args: []argument{
+			{"item_id", itemID},
+			{"body", body},
+		},
+	}
+}
+
 func NewUpdates(updatesFields []UpdatesField) Query {
 	if len(updatesFields) == 0 {
 		return Query{
