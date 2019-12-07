@@ -111,7 +111,7 @@ func BoardsDescriptionField() BoardsField {
 
 // The board's visible groups.
 func NewBoardsGroupsFields(groupsFields []GroupsField, groupsArguments []GroupsArgument) BoardsField {
-	groups := NewGroupWithArguments(groupsFields, groupsArguments)
+	groups := NewGroupsWithArguments(groupsFields, groupsArguments)
 	return BoardsField{field{"groups", &groups}}
 }
 

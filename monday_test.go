@@ -81,7 +81,7 @@ func TestStructures(t *testing.T) {
 				str:   `groups{id}`,
 			},
 			"Args": {
-				query: NewGroupWithArguments(
+				query: NewGroupsWithArguments(
 					nil,
 					[]GroupsArgument{
 						NewGroupsIDsArgument([]string{"x", "y"}),

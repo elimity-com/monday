@@ -103,7 +103,7 @@ func NewGroups(groupsFields []GroupsField) Query {
 	}
 }
 
-func NewGroupWithArguments(groupsFields []GroupsField, groupsArgs []GroupsArgument) Query {
+func NewGroupsWithArguments(groupsFields []GroupsField, groupsArgs []GroupsArgument) Query {
 	groups := NewGroups(groupsFields)
 	var args []argument
 	for _, ga := range groupsArgs {

@@ -81,7 +81,7 @@ func ItemsByColumnValuesCreatorIDField() ItemsByColumnValuesField {
 
 // The group that contains this item.
 func NewItemsByColumnValuesGroupField(groupFields []GroupsField, groupArguments []GroupsArgument) ItemsByColumnValuesField {
-	group := NewGroupWithArguments(groupFields, groupArguments)
+	group := NewGroupsWithArguments(groupFields, groupArguments)
 	group.name = "group"
 	return ItemsByColumnValuesField{field{"groups", &group}}
 }

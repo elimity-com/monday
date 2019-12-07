@@ -151,7 +151,7 @@ func ItemsCreatorIDField() ItemsField {
 
 // The group that contains this item.
 func NewItemsGroupField(groupsFields []GroupsField, groupsArguments []GroupsArgument) ItemsField {
-	group := NewGroupWithArguments(groupsFields, groupsArguments)
+	group := NewGroupsWithArguments(groupsFields, groupsArguments)
 	group.name = "group"
 	return ItemsField{field{"groups", &group}}
 }

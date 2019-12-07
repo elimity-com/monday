@@ -74,6 +74,11 @@ func (a argument) stringify() string {
 			return ""
 		}
 	default:
-		return fmt.Sprintf("%s:%v", a.argument, a.value)
+		switch a.value.(type) {
+		case string:
+			return fmt.Sprintf("%s:%q", a.argument, a.value)
+		default:
+			return fmt.Sprintf("%s:%v", a.argument, a.value)
+		}
 	}
 }
