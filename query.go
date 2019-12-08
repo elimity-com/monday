@@ -77,6 +77,10 @@ func (a argument) stringify() string {
 		switch a.value.(type) {
 		case string:
 			return fmt.Sprintf("%s:%q", a.argument, a.value)
+		case BoardsKind:
+			return fmt.Sprintf("%s:%v", a.argument, a.value.(BoardsKind).kind)
+		case UsersKind:
+			return fmt.Sprintf("%s:%v", a.argument, a.value.(UsersKind).kind)
 		default:
 			return fmt.Sprintf("%s:%v", a.argument, a.value)
 		}

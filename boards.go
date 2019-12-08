@@ -14,7 +14,7 @@ func CreateBoard(name string, kind BoardsKind, boardsFields []BoardsField) Mutat
 		fields: fields,
 		args: []argument{
 			{"board_name", name},
-			{"board_kind", kind.kind},
+			{"board_kind", kind},
 		},
 	}
 }
@@ -215,7 +215,7 @@ func NewBoardsIDsArgument(ids []int) BoardsArgument {
 
 // The boards's kind (public / private / share).
 func NewBoardsKindArgument(kind BoardsKind) BoardsArgument {
-	return BoardsArgument{argument{"board_kind", kind.kind}}
+	return BoardsArgument{argument{"board_kind", kind}}
 }
 
 // The state of the boards (all / active / archived / deleted), the default is active.

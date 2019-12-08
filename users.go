@@ -219,7 +219,7 @@ func NewUsersIDsArgument(ids []int) UsersArgument {
 
 // The kind to search users by (all / non_guests / guests / non_pending).
 func NewUsersKindArgument(kind UsersKind) UsersArgument {
-	return UsersArgument{argument{"kind", kind.kind}}
+	return UsersArgument{argument{"kind", kind}}
 }
 
 // Get the recently created users at the top of the list.
