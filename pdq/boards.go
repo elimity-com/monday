@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	. "github.com/di-wu/monday"
 	"io/ioutil"
 	"strconv"
+
+	. "github.com/di-wu/monday"
 )
 
 type Board struct {
-	Id, Name, Description string
+	Id, Name string
 }
 
 func (b Board) ID() int {
@@ -19,7 +20,7 @@ func (b Board) ID() int {
 }
 
 func (b Board) equals(other Board) bool {
-	if b.Id != other.Id || b.Name != other.Name || b.Description != other.Description {
+	if b.Id != other.Id || b.Name != other.Name {
 		return false
 	}
 	return true
