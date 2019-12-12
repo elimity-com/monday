@@ -15,7 +15,7 @@ func CreateNotification(userID, targetID int, text string, targetType Notificati
 			{"text", text},
 			{"user_id", userID},
 			{"target_id", targetID},
-			{"target_type", targetType.kind},
+			{"target_type", targetType},
 		},
 	}
 }

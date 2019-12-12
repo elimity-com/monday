@@ -15,7 +15,7 @@ func CreateColumn(boardID int, title string, columnsType ColumnsType, columnsFie
 		args: []argument{
 			{"board_id", boardID},
 			{"title", title},
-			{"column_type", columnsType.typ},
+			{"column_type", columnsType},
 		},
 	}
 }

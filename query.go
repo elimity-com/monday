@@ -52,7 +52,7 @@ type argument struct {
 
 func (a argument) stringify() string {
 	switch a.argument {
-	case "column_id", "column_type", "column_value":
+	case "column_id", "column_value":
 		return fmt.Sprintf("%s:%q", a.argument, a.value)
 	case "ids":
 		if strs, ok := a.value.([]string); ok {
@@ -81,6 +81,10 @@ func (a argument) stringify() string {
 			return fmt.Sprintf("%s:%v", a.argument, a.value.(BoardsKind).kind)
 		case UsersKind:
 			return fmt.Sprintf("%s:%v", a.argument, a.value.(UsersKind).kind)
+		case ColumnsType:
+			return fmt.Sprintf("%s:%v", a.argument, a.value.(ColumnsType).typ)
+		case NotificationType:
+			return fmt.Sprintf("%s:%v", a.argument, a.value.(NotificationType).kind)
 		default:
 			return fmt.Sprintf("%s:%v", a.argument, a.value)
 		}
