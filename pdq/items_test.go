@@ -25,7 +25,7 @@ func TestItems(t *testing.T) {
 		return
 	}
 
-	get, err := c.GetItemWithID(board.ID(), group.Id, item.ID())
+	get, err := c.GetItemWithID(item.ID())
 	if err != nil {
 		t.Error(err)
 	}

@@ -15,6 +15,14 @@ type ColumnValue struct {
 	id, value string
 }
 
+func (v ColumnValue) ID() string {
+	return v.id
+}
+
+func (v ColumnValue) Value() string {
+	return v.value
+}
+
 func addQuotes(id string, value interface{}) ColumnValue {
 	return ColumnValue{id, fmt.Sprintf(`"%v"`, value)}
 }

@@ -158,7 +158,6 @@ func (c SimpleClient) CreateItemWithColumnValues(boardID int, groupID string, na
 			Item Item `json:"create_item"`
 		}
 	}
-	fmt.Println(string(raw))
 	if err := json.Unmarshal(raw, &body); err != nil {
 		return Item{}, err
 	}
@@ -166,29 +165,15 @@ func (c SimpleClient) CreateItemWithColumnValues(boardID int, groupID string, na
 }
 
 // GetItemWithID return the item with the given identifier.
-func (c SimpleClient) GetItemWithID(boardID int, groupID string, itemID int) (Item, error) {
+func (c SimpleClient) GetItemWithID(itemID int) (Item, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewBoardsWithArguments(
-			[]BoardsField{
-				NewBoardsGroupsFields(
-					[]GroupsField{
-						NewGroupsItemsField(
-							[]ItemsField{
-								ItemsIDField(),
-								ItemsNameField(),
-							},
-							[]ItemsArgument{
-								NewItemsIDsArgument([]int{itemID}),
-							},
-						),
-					},
-					[]GroupsArgument{
-						NewGroupsIDsArgument([]string{groupID}),
-					},
-				),
+		NewItemsWithArguments(
+			[]ItemsField{
+				ItemsIDField(),
+				ItemsNameField(),
 			},
-			[]BoardsArgument{
-				NewBoardsIDsArgument([]int{boardID}),
+			[]ItemsArgument{
+				NewItemsIDsArgument([]int{itemID}),
 			},
 		),
 	))
@@ -201,27 +186,17 @@ func (c SimpleClient) GetItemWithID(boardID int, groupID string, itemID int) (It
 	}
 	var body struct {
 		Data struct {
-			Boards []struct {
-				Groups []struct {
-					Items []Item
-				}
-			}
+			Items []Item
 		}
 	}
 	if err := json.Unmarshal(raw, &body); err != nil {
 		return Item{}, err
 	}
-	if len(body.Data.Boards) != 1 {
-		return Item{}, fmt.Errorf("no boards returned for id %d: %s", boardID, string(raw))
-	}
-	if len(body.Data.Boards[0].Groups) != 1 {
-		return Item{}, fmt.Errorf("no groups returned for id %s: %s", groupID, string(raw))
-	}
-	if len(body.Data.Boards[0].Groups[0].Items) != 1 {
+	if len(body.Data.Items) != 1 {
 		return Item{}, fmt.Errorf("no items returned for id %d: %s", itemID, string(raw))
 
 	}
-	return body.Data.Boards[0].Groups[0].Items[0], nil
+	return body.Data.Items[0], nil
 }
 
 // GetItems returns all the items.

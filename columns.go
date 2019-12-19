@@ -57,7 +57,7 @@ func ChangeColumnValue(itemID int, columnID string, boardID int, value ColumnVal
 			{"item_id", itemID},
 			{"column_id", columnID},
 			{"board_id", boardID},
-			{"value", value},
+			{"value", value.value},
 		},
 	}
 }

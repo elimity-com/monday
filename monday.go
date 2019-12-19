@@ -63,7 +63,6 @@ func (c *Client) Exec(ctx context.Context, payload Payload) (*http.Response, err
 		return nil, err
 	}
 	req.Header.Set("Authorization", c.token)
-
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
