@@ -20,6 +20,27 @@ func CreateColumn(boardID int, title string, columnsType ColumnsType, columnsFie
 	}
 }
 
+func CreateColumnWithDefaults(boardID int, title string, columnsType ColumnsType, defaults string, columnsFields []ColumnsField) Mutation {
+	if len(columnsFields) == 0 {
+		columnsFields = append(columnsFields, columnsIDField)
+	}
+
+	var fields []field
+	for _, cf := range columnsFields {
+		fields = append(fields, cf.field)
+	}
+	return Mutation{
+		name:   "create_column",
+		fields: fields,
+		args: []argument{
+			{"board_id", boardID},
+			{"title", title},
+			{"column_type", columnsType},
+			{"defaults", defaults},
+		},
+	}
+}
+
 func ChangeColumnValue(itemID int, columnID string, boardID int, value ColumnValue, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
