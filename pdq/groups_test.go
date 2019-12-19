@@ -24,7 +24,7 @@ func TestGroups(t *testing.T) {
 		return
 	}
 
-	get, err := c.GetGroup(board.ID(), group.Id)
+	get, err := c.GetGroupWithID(board.ID(), group.Id)
 	if err != nil {
 		t.Error(err)
 	}

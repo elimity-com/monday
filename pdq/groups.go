@@ -20,7 +20,7 @@ func (g Group) equals(other Group) bool {
 	return true
 }
 
-// EnsureBoard creates a group with the given title if it not already exists.
+// EnsureGroup creates a group with the given title if it not already exists.
 func (c SimpleClient) EnsureGroup(boardID int, title string) (Group, bool, error) {
 	groups, err := c.GetGroups(boardID)
 	if err != nil {
@@ -71,8 +71,8 @@ func (c SimpleClient) CreateGroup(boardID int, name string) (Group, error) {
 	return body.Data.Group, nil
 }
 
-// GetBoardWithID returns the group with given identifier.
-func (c SimpleClient) GetGroup(boardID int, groupID string) (Group, error) {
+// GetGroupWithID returns the group with given identifier.
+func (c SimpleClient) GetGroupWithID(boardID int, groupID string) (Group, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
 		NewBoardsWithArguments(
 			[]BoardsField{
@@ -117,7 +117,7 @@ func (c SimpleClient) GetGroup(boardID int, groupID string) (Group, error) {
 	return body.Data.Boards[0].Groups[0], nil
 }
 
-// GetBoards returns all the groups.
+// GetGroups returns all the groups.
 func (c SimpleClient) GetGroups(boardID int) ([]Group, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
 		NewBoardsWithArguments(

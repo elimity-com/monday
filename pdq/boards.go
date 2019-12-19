@@ -15,8 +15,8 @@ type Board struct {
 }
 
 func (b Board) ID() int {
-	i, _ := strconv.Atoi(b.Id)
-	return i
+	id, _ := strconv.Atoi(b.Id)
+	return id
 }
 
 func (b Board) equals(other Board) bool {
