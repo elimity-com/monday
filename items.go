@@ -1,6 +1,8 @@
 package monday
 
-func CreateItem(boardID int, groupID, name string, values ColumnValues, itemsFields []ItemsField) Mutation {
+import "fmt"
+
+func CreateItem(boardID int, groupID, name string, values []ColumnValue, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
 	}
@@ -14,7 +16,10 @@ func CreateItem(boardID int, groupID, name string, values ColumnValues, itemsFie
 		{"group_id", groupID},
 		{"item_name", name},
 	}
-	columnValues := values.join()
+	var columnValues string
+	for _, v := range values {
+		columnValues += fmt.Sprintf(`{%q:%s}`, v.id, v.value)
+	}
 	if columnValues != "" {
 		args = append(args, argument{"column_values", columnValues})
 	}

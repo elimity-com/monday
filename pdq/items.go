@@ -11,12 +11,68 @@ import (
 )
 
 type Item struct {
-	Id, Name string
+	Id, Name, Value string
 }
 
 func (i Item) ID() int {
 	id, _ := strconv.Atoi(i.Id)
 	return id
+}
+
+func (c SimpleClient) GetItemColumnValues(itemID int) ([]map[string]interface{}, error) {
+	resp, err := c.Exec(context.Background(), NewQueryPayload(
+		NewItemsWithArguments(
+			[]ItemsField{
+				NewItemsColumnValuesField(
+					[]ColumnValuesField{
+						ColumnValuesValueField(),
+					},
+					nil,
+				),
+			},
+			[]ItemsArgument{
+				NewItemsIDsArgument([]int{itemID}),
+			},
+		),
+	))
+	if err != nil {
+		return nil, err
+	}
+	raw, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var body struct {
+		Data struct {
+			Items []struct {
+				Values []struct {
+					Value string
+				} `json:"column_values"`
+			}
+		}
+	}
+	if err := json.Unmarshal(raw, &body); err != nil {
+		return nil, err
+	}
+	if len(body.Data.Items) != 1 {
+		return nil, fmt.Errorf("no items returned for id %d: %s", itemID, string(raw))
+	}
+	if len(body.Data.Items[0].Values) < 1 {
+		return nil, fmt.Errorf("no values returned")
+	}
+	var values []map[string]interface{}
+	for _, value := range body.Data.Items[0].Values {
+		var m map[string]interface{}
+		if value.Value == "" {
+			values = append(values, nil)
+			continue
+		}
+		if err := json.Unmarshal([]byte(value.Value), &m); err != nil {
+			return nil, err
+		}
+		values = append(values, m)
+	}
+	return values, nil
 }
 
 func (i Item) equals(other Item) bool {
@@ -74,6 +130,35 @@ func (c SimpleClient) CreateItem(boardID int, groupID string, name string) (Item
 			Item Item `json:"create_item"`
 		}
 	}
+	if err := json.Unmarshal(raw, &body); err != nil {
+		return Item{}, err
+	}
+	return body.Data.Item, nil
+}
+
+func (c SimpleClient) CreateItemWithColumnValues(boardID int, groupID string, name string, columnValues []ColumnValue) (Item, error) {
+	resp, err := c.Exec(context.Background(), NewMutationPayload(
+		CreateItem(
+			boardID, groupID, name, columnValues,
+			[]ItemsField{
+				ItemsIDField(),
+				ItemsNameField(),
+			},
+		),
+	))
+	if err != nil {
+		return Item{}, err
+	}
+	raw, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Item{}, err
+	}
+	var body struct {
+		Data struct {
+			Item Item `json:"create_item"`
+		}
+	}
+	fmt.Println(string(raw))
 	if err := json.Unmarshal(raw, &body); err != nil {
 		return Item{}, err
 	}

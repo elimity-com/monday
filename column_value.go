@@ -12,69 +12,59 @@ const (
 )
 
 type ColumnValue struct {
-	value string
+	id, value string
 }
 
-type ColumnValues []ColumnValue
-
-func (v ColumnValues) join() string {
-	var str []string
-	for _, v := range v {
-		str = append(str, v.value)
-	}
-	return strings.Join(str, "")
+func addQuotes(id string, value interface{}) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`"%v"`, value)}
 }
 
-func addQuotes(value interface{}) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`"%v"`, value)}
+func newIndex(id string, value int) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"index":%d}`, value)}
 }
 
-func newIndex(value int) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"index": "%d"}`, value)}
+func newLabel(id, value string) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"label":%q}`, value)}
 }
 
-func newLabel(value string) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"label": %q}`, value)}
+func NewItemNameValue(id, value string) ColumnValue {
+	return addQuotes(id, value)
 }
 
-func NewItemNameValue(value string) ColumnValue {
-	return addQuotes(value)
+func NewTextValue(id, value string) ColumnValue {
+	return addQuotes(id, value)
 }
 
-func NewTextValue(value string) ColumnValue {
-	return addQuotes(value)
+func NewLongTextValue(id, value string) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"text": %q}`, value)}
 }
 
-func NewLongTextValue(value string) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"text": %q}`, value)}
+func NewNumberValue(id string, value int) ColumnValue {
+	return addQuotes(id, value)
 }
 
-func NewNumberValue(value int) ColumnValue {
-	return addQuotes(value)
+func NewStatusIndexValue(id string, value int) ColumnValue {
+	return newIndex(id, value)
 }
 
-func NewStatusIndexValue(value int) ColumnValue {
-	return newIndex(value)
+func NewStatusLabelValue(id, value string) ColumnValue {
+	return newLabel(id, value)
 }
 
-func NewStatusLabelValue(value string) ColumnValue {
-	return newLabel(value)
+func NewDropdownIndexValue(id string, value int) ColumnValue {
+	return newIndex(id, value)
 }
 
-func NewDropdownIndexValue(value int) ColumnValue {
-	return newIndex(value)
+func NewDropdownLabelValue(id, value string) ColumnValue {
+	return newLabel(id, value)
 }
 
-func NewDropdownLabelValue(value string) ColumnValue {
-	return newLabel(value)
+func NewPersonValue(id string, value int) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"id":"%d"}`, value)}
 }
 
-func NewPersonValue(value int) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"id":"%d"}`, value)}
-}
-
-func NewTeamValue(value int) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"team_id":"%d"}`, value)}
+func NewTeamValue(id string, value int) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"team_id":"%d"}`, value)}
 }
 
 type People struct {
@@ -99,62 +89,62 @@ func PeopleKindTeam() PeopleKind {
 	return peopleKindTeam
 }
 
-func NewPeopleValue(value []People) ColumnValue {
+func NewPeopleValue(id string, value []People) ColumnValue {
 	var str []string
 	for _, v := range value {
 		str = append(str, fmt.Sprintf(`{"id":"%d","kind",%q}`, v.ID, v.Kind.kind))
 	}
-	return ColumnValue{fmt.Sprintf(`{"personsAndTeams":[%s]}`, strings.Join(str, ","))}
+	return ColumnValue{id, fmt.Sprintf(`{"personsAndTeams":[%s]}`, strings.Join(str, ","))}
 }
 
-func NewWorldClockValue(value string) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"timezone":%q}`, value)}
+func NewWorldClockValue(id, value string) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"timezone":%q}`, value)}
 }
 
-func NewCountryValue(code, name string) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"countryCode":%q,"countryName":%q}`, code, name)}
+func NewCountryValue(id, code, name string) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"countryCode":%q,"countryName":%q}`, code, name)}
 }
 
-func NewEmailValue(email, text string) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"email":%q,"text":%q}`, email, text)}
+func NewEmailValue(id, email, text string) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"email":%q,"text":%q}`, email, text)}
 }
 
-func NewPhoneValue(number int, code string) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"phone":"%d","countryShortName":%q}`, number, code)}
+func NewPhoneValue(id string, number int, code string) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"phone":"%d","countryShortName":%q}`, number, code)}
 }
 
-func NewURLValue(url, text string) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"url":%q,"text":%q}`, url, text)}
+func NewURLValue(id, url, text string) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"url":%q,"text":%q}`, url, text)}
 }
 
-func NewDateValue(value time.Time) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"date":%q,"time":%q}`, value.Format(dateFormat), value.Format(timeFormat))}
+func NewDateValue(id string, value time.Time) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"date":%q,"time":%q}`, value.Format(dateFormat), value.Format(timeFormat))}
 }
 
-func NewTimelineValue(from, to time.Time) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"from":%q,"to":%q}`, from.Format(dateFormat), to.Format(dateFormat))}
+func NewTimelineValue(id string, from, to time.Time) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"from":%q,"to":%q}`, from.Format(dateFormat), to.Format(dateFormat))}
 }
 
-func NewTagsValue(ids []int) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"tags_ids":%q}`, strings.Join(strings.Split(fmt.Sprint(ids), " "), ","))}
+func NewTagsValue(id string, ids []int) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"tags_ids":%q}`, strings.Join(strings.Split(fmt.Sprint(ids), " "), ","))}
 }
 
-func NewHourValue(value time.Time) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"hour":%d,"minute":%d}`, value.Hour(), value.Minute())}
+func NewHourValue(id string, value time.Time) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"hour":%d,"minute":%d}`, value.Hour(), value.Minute())}
 }
 
-func NewWeekValue(start, end time.Time) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"week":{"startDate":%q,"endDate":%s}}`, start.Format(dateFormat), end.Format(dateFormat))}
+func NewWeekValue(id string, start, end time.Time) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"week":{"startDate":%q,"endDate":%s}}`, start.Format(dateFormat), end.Format(dateFormat))}
 }
 
-func NewCheckboxValue(value bool) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"checked":"%t"}`, value)}
+func NewCheckboxValue(id string, value bool) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"checked":"%t"}`, value)}
 }
 
-func NewRatingValue(value int) ColumnValue {
-	return ColumnValue{fmt.Sprintf(`{"rating":%d}`, value)}
+func NewRatingValue(id string, value int) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"rating":%d}`, value)}
 }
 
-func RemoveValue() ColumnValue {
-	return ColumnValue{"{}"}
+func RemoveValue(id string) ColumnValue {
+	return ColumnValue{id, "{}"}
 }

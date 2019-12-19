@@ -12,6 +12,7 @@ import (
 
 type Column struct {
 	Id, Title, Type string
+	SettingsStr      string `json:"settings_str"`
 }
 
 func (c Column) equals(other Column) bool {
@@ -152,6 +153,7 @@ func (c SimpleClient) GetColumns(boardID int) ([]Column, error) {
 						ColumnsIDField(),
 						ColumnsTitleField(),
 						ColumnsTypeField(),
+						ColumnsSettingsStrField(),
 					}),
 			},
 			[]BoardsArgument{
