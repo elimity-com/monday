@@ -1,25 +1,6 @@
 package monday
 
-func newReplies(repliesFields []RepliesField) Query {
-	if len(repliesFields) == 0 {
-		return Query{
-			name: "replies",
-			fields: []field{
-				RepliesIDField().field,
-			},
-		}
-	}
-
-	var fields []field
-	for _, rf := range repliesFields {
-		fields = append(fields, rf.field)
-	}
-	return Query{
-		name:   "replies",
-		fields: fields,
-	}
-}
-
+// The reply's graphql field(s).
 type RepliesField struct {
 	field field
 }
@@ -44,10 +25,10 @@ func RepliesCreatedAtField() RepliesField {
 }
 
 // The reply's creator.
-func NewRepliesCreatorField(creatorFields []UsersField, creatorArguments []UsersArgument) RepliesField {
-	creator := NewUsersWithArguments(creatorFields, creatorArguments)
+func NewRepliesCreatorField(creatorFields []UsersField, creatorArgs ...UsersArgument) RepliesField {
+	creator := Users.List(creatorFields, creatorArgs...)
 	creator.name = "creator"
-	return RepliesField{field{"creator", &creator}}
+	return RepliesField{field{creator.name, &creator}}
 }
 
 // The unique identifier of the reply creator.

@@ -12,7 +12,7 @@ import (
 
 type Column struct {
 	Id, Title, Type string
-	SettingsStr      string `json:"settings_str"`
+	SettingsStr     string `json:"settings_str"`
 }
 
 func (c Column) equals(other Column) bool {
@@ -75,7 +75,7 @@ func (c SimpleClient) EnsureStatusColumn(boardID int, title string, values []str
 // CreateColumn creates a column of the specified type with given title.
 func (c SimpleClient) CreateColumn(boardID int, title string, columnType ColumnsType) (Column, error) {
 	resp, err := c.Exec(context.Background(), NewMutationPayload(
-		CreateColumn(boardID, title, columnType,
+		Columns.Create(boardID, title, columnType,
 			[]ColumnsField{
 				ColumnsIDField(),
 				ColumnsTitleField(),
@@ -104,7 +104,7 @@ func (c SimpleClient) CreateColumn(boardID int, title string, columnType Columns
 // CreateStatusColumn creates a status column with given title and default values.
 func (c SimpleClient) CreateStatusColumn(boardID int, title string, values []string) (Column, error) {
 	resp, err := c.Exec(context.Background(), NewMutationPayload(
-		CreateColumnWithDefaults(boardID, title, ColumnsTypeStatus(),
+		Columns.CreateWithDefaults(boardID, title, ColumnsTypeStatus(),
 			fmt.Sprintf(`{"labels": ["%s"]}`, strings.Join(values, `", "`)),
 			[]ColumnsField{
 				ColumnsIDField(),
@@ -146,7 +146,7 @@ func (c SimpleClient) GetColumnWithID(boardID int, columnID string) (Column, err
 // GetColumns returns all the columns.
 func (c SimpleClient) GetColumns(boardID int) ([]Column, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewBoardsWithArguments(
+		Boards.List(
 			[]BoardsField{
 				NewBoardsColumnField(
 					[]ColumnsField{
@@ -156,9 +156,7 @@ func (c SimpleClient) GetColumns(boardID int) ([]Column, error) {
 						ColumnsSettingsStrField(),
 					}),
 			},
-			[]BoardsArgument{
-				NewBoardsIDsArgument([]int{boardID}),
-			},
+			NewBoardsIDsArgument([]int{boardID}),
 		),
 	))
 	if err != nil {

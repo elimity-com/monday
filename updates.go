@@ -1,6 +1,17 @@
 package monday
 
-func CreateUpdate(itemID int, body string, updatesFields []UpdatesField) Mutation {
+// UpdateService handles all the update related methods of the Monday API.
+// Updates are additional notes and information added to items outside of the structure of the board.
+// The main form of communication within the platform takes place in the updates section.
+type UpdateService service
+
+// Create returns a mutation that allows you to add an update to a item.
+// After the mutation runs you can query back all the board data.
+// - id: the item's unique identifier.
+// - body: the update text.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-updates
+func (*UpdateService) Create(id int, body string, updatesFields []UpdatesField) Mutation {
 	if len(updatesFields) == 0 {
 		updatesFields = append(updatesFields, updatesIDField)
 	}
@@ -13,13 +24,16 @@ func CreateUpdate(itemID int, body string, updatesFields []UpdatesField) Mutatio
 		name:   "create_update",
 		fields: fields,
 		args: []argument{
-			{"item_id", itemID},
+			{"item_id", id},
 			{"body", body},
 		},
 	}
 }
 
-func NewUpdates(updatesFields []UpdatesField) Query {
+// List returns a query that gets one or a collection of updates.
+//
+// DOCS: https://monday.com/developers/v2#queries-section-updates
+func (*UpdateService) List(updatesFields []UpdatesField, updatesArgs ...UpdatesArgument) Query {
 	if len(updatesFields) == 0 {
 		return Query{
 			name: "updates",
@@ -33,22 +47,18 @@ func NewUpdates(updatesFields []UpdatesField) Query {
 	for _, uf := range updatesFields {
 		fields = append(fields, uf.field)
 	}
-	return Query{
-		name:   "updates",
-		fields: fields,
-	}
-}
-
-func NewUpdatesWithArguments(updatesFields []UpdatesField, updatesArgs []UpdatesArgument) Query {
-	updates := NewUpdates(updatesFields)
 	var args []argument
 	for _, ua := range updatesArgs {
 		args = append(args, ua.arg)
 	}
-	updates.args = args
-	return updates
+	return Query{
+		name:   "updates",
+		fields: fields,
+		args:   args,
+	}
 }
 
+// The update's graphql field(s).
 type UpdatesField struct {
 	field field
 }
@@ -70,14 +80,14 @@ func UpdatesBodyField() UpdatesField {
 
 // The update's creation date.
 func UpdatesCreatedAtField() UpdatesField {
-	return updatesUpdatedAtField
+	return updatesCreatedAtField
 }
 
 // The update's creator.
-func NewUpdatesCreatorField(creatorFields []UsersField, creatorArguments []UsersArgument) UpdatesField {
-	creator := NewUsersWithArguments(creatorFields, creatorArguments)
+func NewUpdatesCreatorField(creatorFields []UsersField, creatorArgs ...UsersArgument) UpdatesField {
+	creator := Users.List(creatorFields, creatorArgs...)
 	creator.name = "creator"
-	return UpdatesField{field{"creator", &creator}}
+	return UpdatesField{field{creator.name, &creator}}
 }
 
 // The unique identifier of the update creator.
@@ -97,7 +107,17 @@ func UpdatesItemIDField() UpdatesField {
 
 // The update's replies.
 func NewUpdatesRepliesField(repliesFields []RepliesField) UpdatesField {
-	replies := newReplies(repliesFields)
+	var fields []field
+	for _, rf := range repliesFields {
+		fields = append(fields, rf.field)
+	}
+	if len(fields) == 0 {
+		fields = append(fields, RepliesIDField().field)
+	}
+	replies := Query{
+		name:   "replies",
+		fields: fields,
+	}
 	return UpdatesField{field{"replies", &replies}}
 }
 
@@ -111,6 +131,7 @@ func UpdatesUpdatedAtField() UpdatesField {
 	return updatesUpdatedAtField
 }
 
+// The update's graphql argument(s).
 type UpdatesArgument struct {
 	arg argument
 }

@@ -1,6 +1,14 @@
 package monday
 
-func CreateColumn(boardID int, title string, columnsType ColumnsType, columnsFields []ColumnsField) Mutation {
+type ColumnsService service
+
+// Create returns a mutation that allows you to add a new column to a board.
+// - id: the board's unique identifier.
+// - title: the new column's title.
+// - columnType: the type of column to create.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-columns-creating
+func (*ColumnsService) Create(id int, title string, columnType ColumnsType, columnsFields []ColumnsField) Mutation {
 	if len(columnsFields) == 0 {
 		columnsFields = append(columnsFields, columnsIDField)
 	}
@@ -13,14 +21,22 @@ func CreateColumn(boardID int, title string, columnsType ColumnsType, columnsFie
 		name:   "create_column",
 		fields: fields,
 		args: []argument{
-			{"board_id", boardID},
+			{"board_id", id},
 			{"title", title},
-			{"column_type", columnsType},
+			{"column_type", columnType.typ},
 		},
 	}
 }
 
-func CreateColumnWithDefaults(boardID int, title string, columnsType ColumnsType, defaults string, columnsFields []ColumnsField) Mutation {
+// Create returns a mutation that allows you to add a new column to a board.
+// - id: the board's unique identifier.
+// - title: the new column's title.
+// - columnType: the type of column to create.
+// - defaults: the new column's defaults.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-columns-creating
+func (*ColumnsService) CreateWithDefaults(boardID int, title string, columnsType ColumnsType, defaults string,
+	columnsFields []ColumnsField) Mutation {
 	if len(columnsFields) == 0 {
 		columnsFields = append(columnsFields, columnsIDField)
 	}
@@ -41,7 +57,14 @@ func CreateColumnWithDefaults(boardID int, title string, columnsType ColumnsType
 	}
 }
 
-func ChangeColumnValue(itemID int, columnID string, boardID int, value ColumnValue, itemsFields []ItemsField) Mutation {
+// ChangeValue returns a mutation that allows you to change the value of a column in a specific item (row).
+// - itemID: the item's unique identifier.
+// - columnID: the column's unique identifier.
+// - boardID: the board's unique identifier.
+// - value: the new value of the column.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-columns-change-column-value
+func (*ColumnsService) ChangeValue(itemID int, columnID string, boardID int, value ColumnValue, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
 	}
@@ -62,7 +85,13 @@ func ChangeColumnValue(itemID int, columnID string, boardID int, value ColumnVal
 	}
 }
 
-func ChangeMultipleColumnValues(itemID int, boardID int, values string, itemsFields []ItemsField) Mutation {
+// ChangeValue returns a mutation that allows you to update multiple columns values of a specific item (row).
+// - itemID: the item's unique identifier.
+// - boardID: the board's unique identifier.
+// - value: the new value of the column.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-columns-change-multiple-column-values
+func (*ColumnsService) ChangeMultipleValues(itemID int, boardID int, values string, itemsFields []ItemsField) Mutation {
 	var fields []field
 	for _, i := range itemsFields {
 		fields = append(fields, i.field)
@@ -78,7 +107,10 @@ func ChangeMultipleColumnValues(itemID int, boardID int, values string, itemsFie
 	}
 }
 
-func NewColumns(columnFields []ColumnsField) Query {
+// List returns a query that searches for items based on their column values and returns data about those specific items.
+//
+// DOCS: https://monday.com/developers/v2#queries-section-items-by-column-values
+func (*ColumnsService) List(columnFields []ColumnsField) Query {
 	if len(columnFields) == 0 {
 		return Query{
 			name: "columns",
@@ -98,6 +130,7 @@ func NewColumns(columnFields []ColumnsField) Query {
 	}
 }
 
+// The column's graphql field(s).
 type ColumnsField struct {
 	field field
 }
@@ -141,6 +174,7 @@ func ColumnsWidthField() ColumnsField {
 	return columnsWidthField
 }
 
+// The column type.
 type ColumnsType struct {
 	typ string
 }

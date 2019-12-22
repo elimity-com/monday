@@ -1,6 +1,13 @@
 package monday
 
-func NewUsers(usersFields []UsersField) Query {
+// UsersService handles all the user related methods of the Monday API.
+// Every user is a part of an account (i.e an organization) and could be a member or a guest in that account.
+type UsersService service
+
+// ListWithArgs returns a query that gets one or multiple users.
+//
+// DOCS: https://monday.com/developers/v2#queries-section-users
+func (*UsersService) List(usersFields []UsersField, usersArgs ...UsersArgument) Query {
 	if len(usersFields) == 0 {
 		return Query{
 			name: "users",
@@ -14,22 +21,28 @@ func NewUsers(usersFields []UsersField) Query {
 	for _, uf := range usersFields {
 		fields = append(fields, uf.field)
 	}
-	return Query{
-		name:   "users",
-		fields: fields,
-	}
-}
-
-func NewUsersWithArguments(usersFields []UsersField, usersArgs []UsersArgument) Query {
-	users := NewUsers(usersFields)
 	var args []argument
 	for _, ua := range usersArgs {
 		args = append(args, ua.arg)
 	}
-	users.args = args
-	return users
+	return Query{
+		name:   "users",
+		fields: fields,
+		args:   args,
+	}
 }
 
+// Me return a query that gets the user details of the user whose API key is being used if the API is the personal API key.
+// This is the fastest way to query for the user details (same as users query) of the connected user.
+//
+// https://monday.com/developers/v2#queries-section-me
+func (*UsersService) Me(usersFields []UsersField, usersArgs ...UsersArgument) Query {
+	me := Users.List(usersFields, usersArgs...)
+	me.name = "me"
+	return me
+}
+
+// The user's graphql field(s).
 type UsersField struct {
 	field field
 }
@@ -61,7 +74,7 @@ var (
 
 // The user's account.
 func NewUsersAccountField(accountFields []AccountField) UsersField {
-	account := NewAccount(accountFields)
+	account := Account.Get(accountFields)
 	return UsersField{field{"account", &account}}
 }
 
@@ -156,8 +169,8 @@ func UsersPhotoTinyField() UsersField {
 }
 
 // The teams the user is a member in.
-func NewUsersTeamsField(teamsFields []TeamsField, teamsArguments []TeamsArgument) UsersField {
-	teams := NewTeamsWithArguments(teamsFields, teamsArguments)
+func NewUsersTeamsField(teamsFields []TeamsField, teamsArgs []TeamsArgument) UsersField {
+	teams := Teams.List(teamsFields, teamsArgs...)
 	return UsersField{field{"teams", &teams}}
 }
 
@@ -181,10 +194,12 @@ func UsersUTCHoursDifferenceField() UsersField {
 	return usersUTCHoursDifference
 }
 
+// The user's graphql argument(s).
 type UsersArgument struct {
 	arg argument
 }
 
+// The kind to search users by.
 type UsersKind struct {
 	kind string
 }
@@ -196,18 +211,22 @@ var (
 	nonPendingKind     = UsersKind{"non_pending"}
 )
 
+// All users in account.
 func AllUsersKind() UsersKind {
 	return allUsersKind
 }
 
+// Only company members.
 func NonGuestsUsersKind() UsersKind {
 	return nonGuestsUsersKind
 }
 
+// Only guests.
 func GuestsUsersKind() UsersKind {
 	return guestsUsersKind
 }
 
+// All non pending members.
 func NonPendingUsersKind() UsersKind {
 	return nonPendingKind
 }

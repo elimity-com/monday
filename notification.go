@@ -1,6 +1,18 @@
 package monday
 
-func CreateNotification(userID, targetID int, text string, targetType NotificationType, notificationFields []NotificationField) Mutation {
+// NotificationsService handles all the notification related methods of the Monday API.
+// Notifications are sent in the platform in response to various triggers such as due dates, updates, and more.
+type NotificationsService service
+
+// Create returns a mutation that allows to trigger a notification within the platform.
+// Keep in mind that notifications are async and you will not be able to query their ID's back after sending then out.
+// - userID: the user's unique identifier.
+// - targetID: the target's unique identifier.
+// - text: the notification text.
+// - targetType: the target's type (project/post).
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-notifications
+func (*NotificationsService) Create(userID, targetID int, text string, targetType NotificationType, notificationFields []NotificationsField) Mutation {
 	if len(notificationFields) == 0 {
 		notificationFields = append(notificationFields, notificationTextField)
 	}
@@ -20,42 +32,54 @@ func CreateNotification(userID, targetID int, text string, targetType Notificati
 	}
 }
 
-func CreateNotificationWithPayload(userID, targetID int, text, payload string, targetType NotificationType, notificationFields []NotificationField) Mutation {
-	notification := CreateNotification(userID, targetID, text, targetType, notificationFields)
+// Create returns a mutation that allows to trigger a notification within the platform.
+// Keep in mind that notifications are async and you will not be able to query their ID's back after sending then out.
+// - userID: the user's unique identifier.
+// - targetID: the target's unique identifier.
+// - text: the notification text.
+// - payload: the notification payload (JSON).
+// - targetType: the target's type (project/post).
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-notifications
+func CreateWithPayload(userID, targetID int, text, payload string, targetType NotificationType, notificationFields []NotificationsField) Mutation {
+	notification := Notifications.Create(userID, targetID, text, targetType, notificationFields)
 	notification.args = append(notification.args, argument{"payload", payload})
 	return notification
 }
 
-type NotificationField struct {
+// The notification's graphql field(s).
+type NotificationsField struct {
 	field field
 }
 
 var (
-	notificationIDField   = NotificationField{field{"id", nil}}
-	notificationTextField = NotificationField{field{"text", nil}}
+	notificationIDField   = NotificationsField{field{"id", nil}}
+	notificationTextField = NotificationsField{field{"text", nil}}
 )
 
 // The notification's unique identifier.
-func NotificationIDField() NotificationField {
+func NotificationIDField() NotificationsField {
 	return notificationIDField
 }
 
 // The notification text.
-func NotificationTextField() NotificationField {
+func NotificationTextField() NotificationsField {
 	return notificationTextField
 }
 
+// The notification's graphql argument(s).
 type NotificationArgument struct {
 	arg argument
 }
 
+// The notification's target type.
 type NotificationType struct {
 	kind string
 }
 
 var (
-	notificationTypeProject = NotificationType{"Project"}
-	notificationTypePost    = NotificationType{"Post"}
+	notificationTypeProject = NotificationType{"project"}
+	notificationTypePost    = NotificationType{"post"}
 )
 
 // Pulse or Board.

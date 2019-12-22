@@ -15,6 +15,23 @@ type Client struct {
 	token  string
 }
 
+var (
+	Account             *AccountService
+	Boards              *BoardsService
+	Columns             *ColumnsService
+	Groups              *GroupsService
+	Items               *ItemsService
+	ItemsByColumnValues *ItemsByColumnValuesService
+	Notifications       *NotificationsService
+	Tags                *TagsService
+	Teams               *TeamsService
+	Updates             *UpdateService
+	Users               *UsersService
+	Webhooks            *WebhooksService
+)
+
+type service struct{}
+
 func NewClient(accessToken string, client *http.Client) *Client {
 	if client == nil {
 		client = http.DefaultClient

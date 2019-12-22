@@ -1,6 +1,18 @@
 package monday
 
-func CreateBoard(name string, kind BoardsKind, boardsFields []BoardsField) Mutation {
+// BoardsService handles all the board related methods of the Monday API.
+// The board’s structure is composed of rows (called items), groups of rows (called groups), and columns.
+// The data of the board is stored in the items of the board and in the updates sections of each item.
+// Each board has one or more owners and subscribers.
+// Additionally, there are three different board types (main, shareable, private) and each board can have different sets of permissions
+type BoardsService service
+
+// Create returns a mutation that allows you to create a new board.
+// - name: the board's name.
+// - kind: the board's kind (public/private/share).
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-boards-create
+func (*BoardsService) Create(name string, kind BoardsKind, boardsFields []BoardsField) Mutation {
 	if len(boardsFields) == 0 {
 		boardsFields = append(boardsFields, boardsIDField)
 	}
@@ -19,13 +31,24 @@ func CreateBoard(name string, kind BoardsKind, boardsFields []BoardsField) Mutat
 	}
 }
 
-func CreatBoardFromTemplate(name string, kind BoardsKind, templateID int, boardsFields []BoardsField) Mutation {
-	board := CreateBoard(name, kind, boardsFields)
+// CreateFromTemplate returns a mutation that allows you to create a new board from a template.
+// - name: the board's name.
+// - kind: the board's kind (public/private/share).
+// - templateID: board template id.
+// To see all the available template ID's go to monday.labs and activate the "Developer mode" feature.
+// You will then be able to see the template ID's in the create board from template screen.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-boards-create
+func (*BoardsService) CreateFromTemplate(name string, kind BoardsKind, templateID int, boardsFields []BoardsField) Mutation {
+	board := Boards.Create(name, kind, boardsFields)
 	board.args = append(board.args, argument{"template_id", templateID})
 	return board
 }
 
-func ArchiveBoard(boardID int, boardsFields []BoardsField) Mutation {
+// Archive returns a mutation that allows one to archive a single board.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-boards-archiving
+func (*BoardsService) Archive(id int, boardsFields []BoardsField) Mutation {
 	if len(boardsFields) == 0 {
 		boardsFields = append(boardsFields, boardsIDField)
 	}
@@ -38,12 +61,15 @@ func ArchiveBoard(boardID int, boardsFields []BoardsField) Mutation {
 		name:   "archive_board",
 		fields: fields,
 		args: []argument{
-			{"board_id", boardID},
+			{"board_id", id},
 		},
 	}
 }
 
-func NewBoards(boardsFields []BoardsField) Query {
+// List returns a query that gets one board or a collection of boards.
+//
+// DOCS: https://monday.com/developers/v2#queries-section-boards
+func (*BoardsService) List(boardsFields []BoardsField, boardsArgs ...BoardsArgument) Query {
 	if len(boardsFields) == 0 {
 		return Query{
 			name: "boards",
@@ -57,22 +83,18 @@ func NewBoards(boardsFields []BoardsField) Query {
 	for _, bf := range boardsFields {
 		fields = append(fields, bf.field)
 	}
-	return Query{
-		name:   "boards",
-		fields: fields,
-	}
-}
-
-func NewBoardsWithArguments(boardsFields []BoardsField, boardsArgs []BoardsArgument) Query {
-	boards := NewBoards(boardsFields)
 	var args []argument
 	for _, ta := range boardsArgs {
 		args = append(args, ta.arg)
 	}
-	boards.args = args
-	return boards
+	return Query{
+		name:   "boards",
+		fields: fields,
+		args: args,
+	}
 }
 
+// The board's graphql field(s).
 type BoardsField struct {
 	field field
 }
@@ -100,7 +122,7 @@ func BoardsKindField() BoardsField {
 
 // The board's visible columns.
 func NewBoardsColumnField(columnsFields []ColumnsField) BoardsField {
-	columns := NewColumns(columnsFields)
+	columns := Columns.List(columnsFields)
 	return BoardsField{field{"columns", &columns}}
 }
 
@@ -110,8 +132,8 @@ func BoardsDescriptionField() BoardsField {
 }
 
 // The board's visible groups.
-func NewBoardsGroupsFields(groupsFields []GroupsField, groupsArguments []GroupsArgument) BoardsField {
-	groups := NewGroupsWithArguments(groupsFields, groupsArguments)
+func NewBoardsGroupsFields(groupsFields []GroupsField, groupsArgs []GroupsArgument) BoardsField {
+	groups := Groups.list(groupsFields, groupsArgs...)
 	return BoardsField{field{"groups", &groups}}
 }
 
@@ -121,8 +143,8 @@ func BoardsIDField() BoardsField {
 }
 
 // The board's items (rows).
-func NewBoardsItemsFields(itemsFields []ItemsField, itemsArguments []ItemsArgument) BoardsField {
-	items := NewItemsWithArguments(itemsFields, itemsArguments)
+func NewBoardsItemsFields(itemsFields []ItemsField, itemsArgs []ItemsArgument) BoardsField {
+	items := Items.List(itemsFields, itemsArgs...)
 	return BoardsField{field{"items", &items}}
 }
 
@@ -132,8 +154,8 @@ func BoardsNameField() BoardsField {
 }
 
 // The owner of the board.
-func NewBoardsOwnerField(ownerFields []UsersField, ownerArguments []UsersArgument) BoardsField {
-	owner := NewUsersWithArguments(ownerFields, ownerArguments)
+func NewBoardsOwnerField(ownerFields []UsersField, ownerArgs []UsersArgument) BoardsField {
+	owner := Users.List(ownerFields, ownerArgs...)
 	owner.name = "owner"
 	return BoardsField{field{"owner", &owner}}
 }
@@ -154,28 +176,30 @@ func BoardsStateField() BoardsField {
 }
 
 // The board's subscribers.
-func NewBoardsSubscribersField(subscribersFields []UsersField, subscribersArguments []UsersArgument) BoardsField {
-	subscribers := NewUsersWithArguments(subscribersFields, subscribersArguments)
+func NewBoardsSubscribersField(subscribersFields []UsersField, subscribersArgs []UsersArgument) BoardsField {
+	subscribers := Users.List(subscribersFields, subscribersArgs...)
 	subscribers.name = "subscribers"
 	return BoardsField{field{"subscribers", &subscribers}}
 }
 
 // The board's specific tags
-func NewBoardsTagsField(tagsFields []TagsField, tagsArguments []TagsArgument) BoardsField {
-	tags := NewTagsWithArguments(tagsFields, tagsArguments)
+func NewBoardsTagsField(tagsFields []TagsField, tagsArgs []TagsArgument) BoardsField {
+	tags := Tags.List(tagsFields, tagsArgs...)
 	return BoardsField{field{"tags", &tags}}
 }
 
 // The board's updates.
-func NewBoardsUpdatesField(updatesFields []UpdatesField, updatesArguments []UpdatesArgument) BoardsField {
-	updates := NewUpdatesWithArguments(updatesFields, updatesArguments)
+func NewBoardsUpdatesField(updatesFields []UpdatesField, updatesArgs []UpdatesArgument) BoardsField {
+	updates := Updates.List(updatesFields, updatesArgs...)
 	return BoardsField{field{"updates", &updates}}
 }
 
+// The board's graphql argument(s).
 type BoardsArgument struct {
 	arg argument
 }
 
+// The board's kind (public/private/share).
 type BoardsKind struct {
 	kind string
 }
@@ -186,14 +210,17 @@ var (
 	boardsKindShare   = BoardsKind{"share"}
 )
 
+// Public boards.
 func BoardsKindPublic() BoardsKind {
 	return boardsKindPublic
 }
 
+// Private boards.
 func BoardsKindPrivate() BoardsKind {
 	return boardsKindPrivate
 }
 
+// Shareable boards.
 func BoardsKindShare() BoardsKind {
 	return boardsKindShare
 }

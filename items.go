@@ -2,7 +2,19 @@ package monday
 
 import "fmt"
 
-func CreateItem(boardID int, groupID, name string, values []ColumnValue, itemsFields []ItemsField) Mutation {
+// ItemsService handles all the item related methods of the Monday API.
+// Items are the objects that hold the actual data within the board, to better illustrate this,
+// you can think of a board as a table and a item as a single row in that table.
+type ItemsService service
+
+// Create returns a mutation that allows you to create a new item in the different boards.
+// - boardID: the board's unique identifier.
+// - groupID: the group's unique identifier.
+// - name: the new item's name.
+// - values: the column values of the new item.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-items-create
+func (*ItemsService) Create(boardID int, groupID, name string, values []ColumnValue, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
 	}
@@ -30,7 +42,12 @@ func CreateItem(boardID int, groupID, name string, values []ColumnValue, itemsFi
 	}
 }
 
-func MoveItemToGroup(itemID int, groupID string, itemsFields []ItemsField) Mutation {
+// MoveToGroup returns a mutation that allows you to move a item between groups in the same board.
+// - itemID: the item's unique identifier.
+// - groupID: the group's unique identifier.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-items-move-item-to-group
+func (*ItemsService) MoveToGroup(itemID int, groupID string, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
 	}
@@ -49,7 +66,11 @@ func MoveItemToGroup(itemID int, groupID string, itemsFields []ItemsField) Mutat
 	}
 }
 
-func ArchiveItem(itemID int, itemsFields []ItemsField) Mutation {
+// Archive returns a mutation that allows one to archive a single item.
+// - id: the item's unique identifier.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-items-archive
+func (*ItemsService) Archive(id int, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
 	}
@@ -62,12 +83,16 @@ func ArchiveItem(itemID int, itemsFields []ItemsField) Mutation {
 		name:   "archive_item",
 		fields: fields,
 		args: []argument{
-			{"item_id", itemID},
+			{"item_id", id},
 		},
 	}
 }
 
-func DeleteItem(itemID int, itemsFields []ItemsField) Mutation {
+// Delete returns a mutation that allows one to delete a single item.
+// - id: the item's unique identifier.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-items-archive
+func (*ItemsService) Delete(id int, itemsFields []ItemsField) Mutation {
 	if len(itemsFields) == 0 {
 		itemsFields = append(itemsFields, itemsIDField)
 	}
@@ -80,12 +105,15 @@ func DeleteItem(itemID int, itemsFields []ItemsField) Mutation {
 		name:   "delete_item",
 		fields: fields,
 		args: []argument{
-			{"item_id", itemID},
+			{"item_id", id},
 		},
 	}
 }
 
-func NewItems(itemsFields []ItemsField) Query {
+// List returns a query that gets one or a collection of items.
+//
+// DOCS: https://monday.com/developers/v2#queries-section-items
+func (*ItemsService) List(itemsFields []ItemsField, itemsArgs ...ItemsArgument) Query {
 	if len(itemsFields) == 0 {
 		return Query{
 			name: "items",
@@ -99,22 +127,18 @@ func NewItems(itemsFields []ItemsField) Query {
 	for _, i := range itemsFields {
 		fields = append(fields, i.field)
 	}
-	return Query{
-		name:   "items",
-		fields: fields,
-	}
-}
-
-func NewItemsWithArguments(itemsFields []ItemsField, itemsArgs []ItemsArgument) Query {
-	items := NewItems(itemsFields)
 	var args []argument
 	for _, ia := range itemsArgs {
 		args = append(args, ia.arg)
 	}
-	items.args = args
-	return items
+	return Query{
+		name:   "items",
+		fields: fields,
+		args:   args,
+	}
 }
 
+// The item's graphql field(s).
 type ItemsField struct {
 	field field
 }
@@ -129,15 +153,15 @@ var (
 )
 
 // The board that contains this item.
-func NewItemsBoardField(boardsFields []BoardsField, boardsArguments []BoardsArgument) ItemsField {
-	board := NewBoardsWithArguments(boardsFields, boardsArguments)
+func NewItemsBoardField(boardsFields []BoardsField, boardsArgs []BoardsArgument) ItemsField {
+	board := Boards.List(boardsFields, boardsArgs...)
 	board.name = "board"
 	return ItemsField{field{"boards", &board}}
 }
 
 // The item's column values.
-func NewItemsColumnValuesField(valuesFields []ColumnValuesField, valuesArguments []ColumnValuesArgument) ItemsField {
-	values := newColumnValuesWithArguments(valuesFields, valuesArguments)
+func NewItemsColumnValuesField(valuesFields []ColumnValuesField, valuesArgs []ColumnValuesArgument) ItemsField {
+	values := listColumnValues(valuesFields, valuesArgs)
 	return ItemsField{field{"column_values", &values}}
 }
 
@@ -147,8 +171,8 @@ func ItemsCreatedAtField() ItemsField {
 }
 
 // The item's creator.
-func NewItemsCreatorField(creatorFields []UsersField, creatorArguments []UsersArgument) ItemsField {
-	creator := NewUsersWithArguments(creatorFields, creatorArguments)
+func NewItemsCreatorField(creatorFields []UsersField, creatorArgs []UsersArgument) ItemsField {
+	creator := Users.List(creatorFields, creatorArgs...)
 	creator.name = "creator"
 	return ItemsField{field{"creator", &creator}}
 }
@@ -159,8 +183,8 @@ func ItemsCreatorIDField() ItemsField {
 }
 
 // The group that contains this item.
-func NewItemsGroupField(groupsFields []GroupsField, groupsArguments []GroupsArgument) ItemsField {
-	group := NewGroupsWithArguments(groupsFields, groupsArguments)
+func NewItemsGroupField(groupsFields []GroupsField, groupsArgs []GroupsArgument) ItemsField {
+	group := Groups.list(groupsFields, groupsArgs...)
 	group.name = "group"
 	return ItemsField{field{"groups", &group}}
 }
@@ -181,8 +205,8 @@ func ItemsStateField() ItemsField {
 }
 
 // The pulses's subscribers.
-func NewItemsSubscribersField(subscribersFields []UsersField, subscribersArguments []UsersArgument) ItemsField {
-	subscribers := NewUsersWithArguments(subscribersFields, subscribersArguments)
+func NewItemsSubscribersField(subscribersFields []UsersField, subscribersArgs []UsersArgument) ItemsField {
+	subscribers := Users.List(subscribersFields, subscribersArgs...)
 	subscribers.name = "subscribers"
 	return ItemsField{field{"subscribers", &subscribers}}
 }
@@ -193,11 +217,12 @@ func ItemsUpdatedAtField() ItemsField {
 }
 
 // The item's updates.
-func NewItemsUpdatesField(updatesFields []UpdatesField, updatesArguments []UpdatesArgument) ItemsField {
-	updates := NewUpdatesWithArguments(updatesFields, updatesArguments)
+func NewItemsUpdatesField(updatesFields []UpdatesField, updatesArgs []UpdatesArgument) ItemsField {
+	updates := Updates.List(updatesFields, updatesArgs...)
 	return ItemsField{field{"updates", &updates}}
 }
 
+// The item's graphql argument(s).
 type ItemsArgument struct {
 	arg argument
 }

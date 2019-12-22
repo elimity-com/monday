@@ -1,28 +1,6 @@
 package monday
 
-func newPlan(planFields []PlanField) Query {
-	if len(planFields) == 0 {
-		return Query{
-			name: "plan",
-			fields: []field{
-				PlanMaxUsersField().field,
-				PlanPeriodField().field,
-				PlanTierField().field,
-				PlanVersionField().field,
-			},
-		}
-	}
-
-	var fields []field
-	for _, pf := range planFields {
-		fields = append(fields, pf.field)
-	}
-	return Query{
-		name:   "plan",
-		fields: fields,
-	}
-}
-
+// The plan's graphql field(s).
 type PlanField struct {
 	field field
 }

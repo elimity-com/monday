@@ -1,6 +1,10 @@
 package monday
 
-func NewAccount(accountFields []AccountField) Query {
+// AccountService handles all the account related methods of the Monday API.
+type AccountService service
+
+// Account returns a query that gets the connected account's information.
+func (*AccountService) Get(accountFields []AccountField) Query {
 	if len(accountFields) == 0 {
 		return Query{
 			name: "account",
@@ -20,6 +24,7 @@ func NewAccount(accountFields []AccountField) Query {
 	}
 }
 
+// The account's graphql field(s).
 type AccountField struct {
 	field field
 }
@@ -55,7 +60,22 @@ func AccountNameField() AccountField {
 
 // The account's payment plan.
 func AccountPlanField(planFields []PlanField) AccountField {
-	plan := newPlan(planFields)
+	var fields []field
+	for _, pf := range planFields {
+		fields = append(fields, pf.field)
+	}
+	if len(fields) == 0 {
+		fields = []field{
+			PlanMaxUsersField().field,
+			PlanPeriodField().field,
+			PlanTierField().field,
+			PlanVersionField().field,
+		}
+	}
+	plan := Query{
+		name:   "plan",
+		fields: fields,
+	}
 	return AccountField{field{"plan", &plan}}
 }
 

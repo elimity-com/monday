@@ -1,6 +1,17 @@
 package monday
 
-func DuplicateGroup(boardID int, groupID string, AddToTop bool, groupsFields []GroupsField) Mutation {
+// GroupsService handles all the group related methods of the Monday API.
+// Items are grouped together in units called groups.
+// Each board contains one or multiple groups, and each group can hold one or many items.
+type GroupsService service
+
+// Duplicate returns a mutation that duplicates a group with all of its items.
+// - boardID: the board's unique identifier.
+// - groupID: the group's unique identifier.
+// - top: should the new group be added to the top?
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-groups-duplicate
+func (*GroupsService) Duplicate(boardID int, groupID string, top bool, groupsFields []GroupsField) Mutation {
 	if len(groupsFields) == 0 {
 		groupsFields = append(groupsFields, groupsIDField)
 	}
@@ -15,18 +26,30 @@ func DuplicateGroup(boardID int, groupID string, AddToTop bool, groupsFields []G
 		args: []argument{
 			{"board_id", boardID},
 			{"group_id", groupID},
-			{"add_to_top", AddToTop},
+			{"add_to_top", top},
 		},
 	}
 }
 
-func DuplicateGroupWidthNewTitle(boardID int, groupID string, AddToTop bool, groupTitle string, groupsFields []GroupsField) Mutation {
-	group := DuplicateGroup(boardID, groupID, AddToTop, groupsFields)
-	group.args = append(group.args, argument{"group_title", groupTitle})
+// DuplicateWithNewTitle returns a mutation that duplicates a group with all of its items.
+// - boardID: the board's unique identifier.
+// - groupID: the group's unique identifier.
+// - top: should the new group be added to the top?
+// - title: the group's title.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-groups-duplicate
+func (*GroupsService) DuplicateWithNewTitle(boardID int, groupID string, top bool, title string, groupsFields []GroupsField) Mutation {
+	group := Groups.Duplicate(boardID, groupID, top, groupsFields)
+	group.args = append(group.args, argument{"group_title", title})
 	return group
 }
 
-func CreateGroup(boardID int, groupName string, groupsFields []GroupsField) Mutation {
+// Create returns a mutation that creates a new empty group.
+// - boardID: the board's unique identifier.
+// - groupID: The group's unique identifier.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-groups-create
+func (*GroupsService) Create(boardID int, groupName string, groupsFields []GroupsField) Mutation {
 	if len(groupsFields) == 0 {
 		groupsFields = append(groupsFields, groupsIDField)
 	}
@@ -45,7 +68,12 @@ func CreateGroup(boardID int, groupName string, groupsFields []GroupsField) Muta
 	}
 }
 
-func ArchiveGroup(boardID int, groupID string, groupsFields []GroupsField) Mutation {
+// Archive returns a mutation that archives a group with all of its items.
+// - boardID: the board's unique identifier.
+// - groupID: The group's unique identifier.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-groups-archive
+func (*GroupsService) Archive(boardID int, groupID string, groupsFields []GroupsField) Mutation {
 	if len(groupsFields) == 0 {
 		groupsFields = append(groupsFields, groupsIDField)
 	}
@@ -64,7 +92,12 @@ func ArchiveGroup(boardID int, groupID string, groupsFields []GroupsField) Mutat
 	}
 }
 
-func DeleteGroup(boardID int, groupID string, groupsFields []GroupsField) Mutation {
+// Delete returns a mutation that deletes a group with all of its items.
+// - boardID: the board's unique identifier.
+// - groupID: The group's unique identifier.
+//
+// DOCS: https://monday.com/developers/v2#mutations-section-groups-delete
+func (*GroupsService) Delete(boardID int, groupID string, groupsFields []GroupsField) Mutation {
 	if len(groupsFields) == 0 {
 		groupsFields = append(groupsFields, groupsIDField)
 	}
@@ -83,7 +116,10 @@ func DeleteGroup(boardID int, groupID string, groupsFields []GroupsField) Mutati
 	}
 }
 
-func NewGroups(groupsFields []GroupsField) Query {
+// List returns a query that gets one group or a collection of groups in a specific board.
+//
+// DOCS: https://monday.com/developers/v2#queries-section-groups
+func (*GroupsService) list(groupsFields []GroupsField, groupsArgs ...GroupsArgument) Query {
 	if len(groupsFields) == 0 {
 		return Query{
 			name: "groups",
@@ -97,22 +133,18 @@ func NewGroups(groupsFields []GroupsField) Query {
 	for _, gf := range groupsFields {
 		fields = append(fields, gf.field)
 	}
-	return Query{
-		name:   "groups",
-		fields: fields,
-	}
-}
-
-func NewGroupsWithArguments(groupsFields []GroupsField, groupsArgs []GroupsArgument) Query {
-	groups := NewGroups(groupsFields)
 	var args []argument
 	for _, ga := range groupsArgs {
 		args = append(args, ga.arg)
 	}
-	groups.args = args
-	return groups
+	return Query{
+		name:   "groups",
+		fields: fields,
+		args:   args,
+	}
 }
 
+// The group's graphql field(s).
 type GroupsField struct {
 	field field
 }
@@ -147,8 +179,8 @@ func GroupsIDField() GroupsField {
 }
 
 // The items in the group.
-func NewGroupsItemsField(itemsFields []ItemsField, itemsArguments []ItemsArgument) GroupsField {
-	items := NewItemsWithArguments(itemsFields, itemsArguments)
+func NewGroupsItemsField(itemsFields []ItemsField, itemsArgs []ItemsArgument) GroupsField {
+	items := Items.List(itemsFields, itemsArgs...)
 	return GroupsField{field{"items", &items}}
 }
 
@@ -162,6 +194,7 @@ func GroupsTitleField() GroupsField {
 	return groupsTitleField
 }
 
+// The group's graphql argument(s).
 type GroupsArgument struct {
 	arg argument
 }

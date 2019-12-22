@@ -54,7 +54,7 @@ func (c SimpleClient) EnsureBoard(name string) (Board, bool, error) {
 // CreateBoard creates a public board with the given name.
 func (c SimpleClient) CreateBoard(name string) (Board, error) {
 	resp, err := c.Exec(context.Background(), NewMutationPayload(
-		CreateBoard(name, BoardsKindPublic(), []BoardsField{
+		Boards.Create(name, BoardsKindPublic(), []BoardsField{
 			BoardsIDField(),
 			BoardsNameField(),
 		}),
@@ -80,15 +80,13 @@ func (c SimpleClient) CreateBoard(name string) (Board, error) {
 // GetBoardWithID returns the board with given identifier.
 func (c SimpleClient) GetBoardWithID(id int) (Board, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewBoardsWithArguments(
+		Boards.List(
 			[]BoardsField{
 				BoardsIDField(),
 				BoardsNameField(),
 				BoardsDescriptionField(),
 			},
-			[]BoardsArgument{
-				NewBoardsIDsArgument([]int{id}),
-			},
+			NewBoardsIDsArgument([]int{id}),
 		),
 	))
 	if err != nil {
@@ -116,7 +114,7 @@ func (c SimpleClient) GetBoardWithID(id int) (Board, error) {
 // GetBoards returns all the boards.
 func (c SimpleClient) GetBoards() ([]Board, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewBoards(
+		Boards.List(
 			[]BoardsField{
 				BoardsIDField(),
 				BoardsNameField(),

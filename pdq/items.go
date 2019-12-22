@@ -21,7 +21,7 @@ func (i Item) ID() int {
 
 func (c SimpleClient) GetItemColumnValues(itemID int) ([]map[string]interface{}, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewItemsWithArguments(
+		Items.List(
 			[]ItemsField{
 				NewItemsColumnValuesField(
 					[]ColumnValuesField{
@@ -30,9 +30,7 @@ func (c SimpleClient) GetItemColumnValues(itemID int) ([]map[string]interface{},
 					nil,
 				),
 			},
-			[]ItemsArgument{
-				NewItemsIDsArgument([]int{itemID}),
-			},
+			NewItemsIDsArgument([]int{itemID}),
 		),
 	))
 	if err != nil {
@@ -110,7 +108,7 @@ func (c SimpleClient) EnsureItem(boardID int, groupID string, name string) (Item
 // CreateItem creates an item with the given name.
 func (c SimpleClient) CreateItem(boardID int, groupID string, name string) (Item, error) {
 	resp, err := c.Exec(context.Background(), NewMutationPayload(
-		CreateItem(
+		Items.Create(
 			boardID, groupID, name, nil,
 			[]ItemsField{
 				ItemsIDField(),
@@ -138,7 +136,7 @@ func (c SimpleClient) CreateItem(boardID int, groupID string, name string) (Item
 
 func (c SimpleClient) CreateItemWithColumnValues(boardID int, groupID string, name string, columnValues []ColumnValue) (Item, error) {
 	resp, err := c.Exec(context.Background(), NewMutationPayload(
-		CreateItem(
+		Items.Create(
 			boardID, groupID, name, columnValues,
 			[]ItemsField{
 				ItemsIDField(),
@@ -167,14 +165,12 @@ func (c SimpleClient) CreateItemWithColumnValues(boardID int, groupID string, na
 // GetItemWithID return the item with the given identifier.
 func (c SimpleClient) GetItemWithID(itemID int) (Item, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewItemsWithArguments(
+		Items.List(
 			[]ItemsField{
 				ItemsIDField(),
 				ItemsNameField(),
 			},
-			[]ItemsArgument{
-				NewItemsIDsArgument([]int{itemID}),
-			},
+			NewItemsIDsArgument([]int{itemID}),
 		),
 	))
 	if err != nil {
@@ -202,7 +198,7 @@ func (c SimpleClient) GetItemWithID(itemID int) (Item, error) {
 // GetItems returns all the items.
 func (c SimpleClient) GetItems(boardID int, groupID string) ([]Item, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewBoardsWithArguments(
+		Boards.List(
 			[]BoardsField{
 				NewBoardsGroupsFields(
 					[]GroupsField{
@@ -219,9 +215,7 @@ func (c SimpleClient) GetItems(boardID int, groupID string) ([]Item, error) {
 					},
 				),
 			},
-			[]BoardsArgument{
-				NewBoardsIDsArgument([]int{boardID}),
-			},
+			NewBoardsIDsArgument([]int{boardID}),
 		),
 	))
 	if err != nil {

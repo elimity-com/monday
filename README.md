@@ -11,9 +11,7 @@ monday is a go client library for accessing the [monday api v2](https://monday.c
 NewClient(mondayAPIToken, nil).Exec(context.Background(), NewQueryPayload(
     NewBoardsWithArguments(
         nil,
-        []BoardsArgument{
-            NewBoardsIDsArgument([]int{boardID}),
-        },
+        NewBoardsIDsArgument([]int{boardID}),
     ),
 ))
 ```
@@ -28,7 +26,7 @@ query {
 ## mutating monday.com entities
 ```go
 NewClient(mondayAPIToken, nil).Exec(context.Background(), NewMutationPayload(
-    CreateBoard(boardName, PublicBoardsKind(), nil),
+    Boards.Create(boardName, PublicBoardsKind(), nil),
 ))
 ```
 the code above executes the following mutation

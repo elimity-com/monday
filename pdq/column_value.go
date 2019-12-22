@@ -8,7 +8,7 @@ import (
 
 func (c SimpleClient) EnsureColumnValue(boardID int, itemID int, value ColumnValue) error {
 	_, err := c.Exec(context.Background(), NewMutationPayload(
-		ChangeColumnValue(
+		Columns.ChangeValue(
 			itemID, value.ID(), boardID, value, nil,
 		),
 	))

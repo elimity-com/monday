@@ -48,7 +48,7 @@ func (c SimpleClient) EnsureGroup(boardID int, title string) (Group, bool, error
 // CreateGroup creates a group with given name.
 func (c SimpleClient) CreateGroup(boardID int, name string) (Group, error) {
 	resp, err := c.Exec(context.Background(), NewMutationPayload(
-		CreateGroup(boardID, name, []GroupsField{
+		Groups.Create(boardID, name, []GroupsField{
 			GroupsIDField(),
 			GroupsTitleField(),
 		}),
@@ -74,7 +74,7 @@ func (c SimpleClient) CreateGroup(boardID int, name string) (Group, error) {
 // GetGroupWithID returns the group with given identifier.
 func (c SimpleClient) GetGroupWithID(boardID int, groupID string) (Group, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewBoardsWithArguments(
+		Boards.List(
 			[]BoardsField{
 				NewBoardsGroupsFields(
 					[]GroupsField{
@@ -86,9 +86,7 @@ func (c SimpleClient) GetGroupWithID(boardID int, groupID string) (Group, error)
 					},
 				),
 			},
-			[]BoardsArgument{
-				NewBoardsIDsArgument([]int{boardID}),
-			},
+			NewBoardsIDsArgument([]int{boardID}),
 		),
 	))
 	if err != nil {
@@ -120,7 +118,7 @@ func (c SimpleClient) GetGroupWithID(boardID int, groupID string) (Group, error)
 // GetGroups returns all the groups.
 func (c SimpleClient) GetGroups(boardID int) ([]Group, error) {
 	resp, err := c.Exec(context.Background(), NewQueryPayload(
-		NewBoardsWithArguments(
+		Boards.List(
 			[]BoardsField{
 				NewBoardsGroupsFields(
 					[]GroupsField{
@@ -130,9 +128,7 @@ func (c SimpleClient) GetGroups(boardID int) ([]Group, error) {
 					nil,
 				),
 			},
-			[]BoardsArgument{
-				NewBoardsIDsArgument([]int{boardID}),
-			},
+			NewBoardsIDsArgument([]int{boardID}),
 		),
 	))
 	if err != nil {

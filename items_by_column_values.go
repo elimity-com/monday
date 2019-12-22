@@ -1,10 +1,21 @@
 package monday
 
-func NewItemsByColumnValues(boardID int, columnID string, columnValue ColumnValue, columnValuesFields []ItemsByColumnValuesField) Query {
+// ItemsByColumnValuesService handles all the items by column values related methods of the Monday API.
+// Just like in a table, the different values of each item are stored in columns.
+type ItemsByColumnValuesService service
+
+// List return a query that searches for items based on their column values and returns data about those specific items.
+// - boardID: the board's unique identifier.
+// - columnID: the column's unique identifier.
+// - value: the column value to search items by.
+//
+// DOCS: https://monday.com/developers/v2#queries-section-items-by-column-values
+func (*ItemsByColumnValuesService) List(boardID int, columnID string, value ColumnValue,
+	columnValuesFields []ItemsByColumnValuesField, columnValuesArgs ...ItemsByColumnValuesArgument) Query {
 	args := []argument{
 		newItemsByColumnValuesBoardIDArgument(boardID).arg,
 		newItemsByColumnValuesColumnIDArgument(columnID).arg,
-		newItemsByColumnValuesColumnValueArgument(columnValue).arg,
+		newItemsByColumnValuesColumnValueArgument(value).arg,
 	}
 
 	if len(columnValuesFields) == 0 {
@@ -21,6 +32,9 @@ func NewItemsByColumnValues(boardID int, columnID string, columnValue ColumnValu
 	for _, vf := range columnValuesFields {
 		fields = append(fields, vf.field)
 	}
+	for _, va := range columnValuesArgs {
+		args = append(args, va.arg)
+	}
 	return Query{
 		name:   "items_by_column_values",
 		fields: fields,
@@ -28,14 +42,7 @@ func NewItemsByColumnValues(boardID int, columnID string, columnValue ColumnValu
 	}
 }
 
-func NewItemsByColumnValuesWithArguments(boardID int, columnID string, columnValue ColumnValue, columnValuesFields []ItemsByColumnValuesField, columnValuesArgs []ItemsByColumnValuesArgument) Query {
-	columnValues := NewItemsByColumnValues(boardID, columnID, columnValue, columnValuesFields)
-	for _, va := range columnValuesArgs {
-		columnValues.args = append(columnValues.args, va.arg)
-	}
-	return columnValues
-}
-
+// The items by column values' graphql field(s).
 type ItemsByColumnValuesField struct {
 	field field
 }
@@ -50,15 +57,15 @@ var (
 )
 
 // The board that contains this item.
-func NewItemsByColumnValuesBoardField(boardFields []BoardsField, boardArguments []BoardsArgument) ItemsByColumnValuesField {
-	board := NewBoardsWithArguments(boardFields, boardArguments)
+func NewItemsByColumnValuesBoardField(boardFields []BoardsField, boardArgs []BoardsArgument) ItemsByColumnValuesField {
+	board := Boards.List(boardFields, boardArgs...)
 	board.name = "board"
-	return ItemsByColumnValuesField{field{"boards", &board}}
+	return ItemsByColumnValuesField{field{board.name, &board}}
 }
 
 // The item's column values.
-func NewItemsByColumnValuesColumnValuesField(valuesFields []ColumnValuesField, valuesArguments []ColumnValuesArgument) ItemsByColumnValuesField {
-	values := newColumnValuesWithArguments(valuesFields, valuesArguments)
+func NewItemsByColumnValuesColumnValuesField(valuesFields []ColumnValuesField, valuesArgs []ColumnValuesArgument) ItemsByColumnValuesField {
+	values := listColumnValues(valuesFields, valuesArgs)
 	return ItemsByColumnValuesField{field{"column_values", &values}}
 }
 
@@ -68,10 +75,10 @@ func ItemsByColumnValuesCreatedAtField() ItemsByColumnValuesField {
 }
 
 // The item's creator.
-func NewItemsByColumnValuesCreatorField(creatorFields []UsersField, creatorArguments []UsersArgument) ItemsByColumnValuesField {
-	creator := NewUsersWithArguments(creatorFields, creatorArguments)
+func NewItemsByColumnValuesCreatorField(creatorFields []UsersField, creatorArgs []UsersArgument) ItemsByColumnValuesField {
+	creator := Users.List(creatorFields, creatorArgs...)
 	creator.name = "creator"
-	return ItemsByColumnValuesField{field{"creator", &creator}}
+	return ItemsByColumnValuesField{field{creator.name, &creator}}
 }
 
 // The unique identifier of the item creator.
@@ -80,10 +87,10 @@ func ItemsByColumnValuesCreatorIDField() ItemsByColumnValuesField {
 }
 
 // The group that contains this item.
-func NewItemsByColumnValuesGroupField(groupFields []GroupsField, groupArguments []GroupsArgument) ItemsByColumnValuesField {
-	group := NewGroupsWithArguments(groupFields, groupArguments)
+func NewItemsByColumnValuesGroupField(groupFields []GroupsField, groupArgs []GroupsArgument) ItemsByColumnValuesField {
+	group := Groups.list(groupFields, groupArgs...)
 	group.name = "group"
-	return ItemsByColumnValuesField{field{"groups", &group}}
+	return ItemsByColumnValuesField{field{group.name, &group}}
 }
 
 // The item's unique identifier.
@@ -102,10 +109,10 @@ func ItemsByColumnValuesStateField() ItemsByColumnValuesField {
 }
 
 // The pulses's subscribers.
-func NewItemsByColumnValuesSubscribersField(subscribersFields []UsersField, subscribersArguments []UsersArgument) ItemsByColumnValuesField {
-	subscribers := NewUsersWithArguments(subscribersFields, subscribersArguments)
+func NewItemsByColumnValuesSubscribersField(subscribersFields []UsersField, subscribersArgs []UsersArgument) ItemsByColumnValuesField {
+	subscribers := Users.List(subscribersFields, subscribersArgs...)
 	subscribers.name = "subscribers"
-	return ItemsByColumnValuesField{field{"subscribers", &subscribers}}
+	return ItemsByColumnValuesField{field{subscribers.name, &subscribers}}
 }
 
 // The item's last update date.
@@ -114,11 +121,12 @@ func ItemsByColumnValuesUpdatedAtField() ItemsByColumnValuesField {
 }
 
 // The item's updates.
-func NewItemsByColumnValuesUpdatesField(updatesFields []UpdatesField, updatesArguments []UpdatesArgument) ItemsByColumnValuesField {
-	updates := NewUpdatesWithArguments(updatesFields, updatesArguments)
+func NewItemsByColumnValuesUpdatesField(updatesFields []UpdatesField, updatesArgs []UpdatesArgument) ItemsByColumnValuesField {
+	updates := Updates.List(updatesFields, updatesArgs...)
 	return ItemsByColumnValuesField{field{"updates", &updates}}
 }
 
+// The items by column values' graphql argument(s).
 type ItemsByColumnValuesArgument struct {
 	arg argument
 }

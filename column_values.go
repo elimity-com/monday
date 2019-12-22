@@ -1,6 +1,9 @@
 package monday
 
-func newColumnValuesWithArguments(valuesFields []ColumnValuesField, valuesArguments []ColumnValuesArgument) Query {
+// Column values are available for querying through items.
+//
+// DOCS: https://monday.com/developers/v2#queries-column-values
+func listColumnValues(valuesFields []ColumnValuesField, valuesArgs []ColumnValuesArgument) Query {
 	if len(valuesFields) == 0 {
 		valuesFields = append(valuesFields, ColumnValuesIDField())
 	}
@@ -9,7 +12,7 @@ func newColumnValuesWithArguments(valuesFields []ColumnValuesField, valuesArgume
 		fields = append(fields, vf.field)
 	}
 	var args []argument
-	for _, va := range valuesArguments {
+	for _, va := range valuesArgs {
 		args = append(args, va.arg)
 	}
 	return Query{
@@ -19,6 +22,7 @@ func newColumnValuesWithArguments(valuesFields []ColumnValuesField, valuesArgume
 	}
 }
 
+// The column value's graphql field(s).
 type ColumnValuesField struct {
 	field field
 }
