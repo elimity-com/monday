@@ -47,7 +47,7 @@ func NewTextValue(id, value string) ColumnValue {
 
 // To update the long text column, send a string up to 2000 characters.
 func NewLongTextValue(id, value string) ColumnValue {
-	return ColumnValue{id, fmt.Sprintf(`{"text": %q}`, value)}
+	return ColumnValue{id, fmt.Sprintf(`{"text":%q}`, value)}
 }
 
 // To update the number column send a string containing a float or int.
@@ -66,25 +66,29 @@ func NewStatusLabelValue(id, value string) ColumnValue {
 }
 
 // To update a dropdown column, send the id of the label you want to select.
-func NewDropdownIndexValue(id string, value int) ColumnValue {
-	return newIndex(id, value)
+func NewDropdownIndexValue(id string, ids []int) ColumnValue {
+	return ColumnValue{id, fmt.Sprintf(`{"ids":%s}`, strings.Join(strings.Split(fmt.Sprint(ids), " "), ","))}
 }
 
 // To update a dropdown column, send the label you want to select.
-func NewDropdownLabelValue(id, value string) ColumnValue {
-	return newLabel(id, value)
+func NewDropdownLabelValue(id string, values []string) ColumnValue {
+	var str []string
+	for _, v := range values {
+		str = append(str, fmt.Sprintf("%q", v))
+	}
+	return ColumnValue{id, fmt.Sprintf(`{"labels":[%s]}`, strings.Join(str, ","))}
 }
 
 // To update a person column, send the ID of the user.
 func NewPersonValue(id string, value int) ColumnValue {
-	return ColumnValue{id, fmt.Sprintf(`{"id":"%d"}`, value)}
+	return ColumnValue{id, fmt.Sprintf(`{"id":%d}`, value)}
 }
 
 // To update a team column send the ID of the team.
 // The ID of a specific team can be found by using the teams query,
 // checking which teams a particular user is a part of (with the User object).
 func NewTeamValue(id string, value int) ColumnValue {
-	return ColumnValue{id, fmt.Sprintf(`{"team_id":"%d"}`, value)}
+	return ColumnValue{id, fmt.Sprintf(`{"team_id":%d}`, value)}
 }
 
 type People struct {
@@ -114,7 +118,7 @@ func PeopleKindTeam() PeopleKind {
 func NewPeopleValue(id string, value []People) ColumnValue {
 	var str []string
 	for _, v := range value {
-		str = append(str, fmt.Sprintf(`{"id":"%d","kind",%q}`, v.ID, v.Kind.kind))
+		str = append(str, fmt.Sprintf(`{"id":%d,"kind":%q}`, v.ID, v.Kind.kind))
 	}
 	return ColumnValue{id, fmt.Sprintf(`{"personsAndTeams":[%s]}`, strings.Join(str, ","))}
 }
@@ -163,7 +167,7 @@ func NewTimelineValue(id string, from, to time.Time) ColumnValue {
 
 // To update a tags column, send the tag ID’s in an array.
 func NewTagsValue(id string, ids []int) ColumnValue {
-	return ColumnValue{id, fmt.Sprintf(`{"tags_ids":%q}`, strings.Join(strings.Split(fmt.Sprint(ids), " "), ","))}
+	return ColumnValue{id, fmt.Sprintf(`{"tag_ids":%s}`, strings.Join(strings.Split(fmt.Sprint(ids), " "), ","))}
 }
 
 // To update an hour column, send the hour and minute in 24-hour format.
@@ -175,7 +179,7 @@ func NewHourValue(id string, value time.Time) ColumnValue {
 // Date must be 7 days apart (inclusive of the first and last date) and
 // start at the beginning of the work week defined in the account.
 func NewWeekValue(id string, start, end time.Time) ColumnValue {
-	return ColumnValue{id, fmt.Sprintf(`{"week":{"startDate":%q,"endDate":%s}}`, start.Format(dateFormat), end.Format(dateFormat))}
+	return ColumnValue{id, fmt.Sprintf(`{"week":{"startDate":%q,"endDate":%q}}`, start.Format(dateFormat), end.Format(dateFormat))}
 }
 
 // To check the box in the checkbox column, send a 'checked' field with true.
